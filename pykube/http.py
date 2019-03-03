@@ -30,9 +30,14 @@ _ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[
 
 class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
 
+    # _do_send: the actual send method of HTTPAdapter
+    # it can be overwritten in unit tests to mock the actual HTTP calls
+    _do_send = requests.adapters.HTTPAdapter.send
+
     def __init__(self, kube_config, **kwargs):
         self.kube_config = kube_config
-        super(KubernetesHTTPAdapter, self).__init__(**kwargs)
+
+        super().__init__(**kwargs)
 
     def _persist_credentials(self, config, token, expiry):
         user_name = config.contexts[config.current_context]["user"]
@@ -124,8 +129,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
         elif "insecure-skip-tls-verify" in config.cluster:
             kwargs["verify"] = not config.cluster["insecure-skip-tls-verify"]
 
-        send = super(KubernetesHTTPAdapter, self).send
-        response = send(request, **kwargs)
+        response = self._do_send(request, **kwargs)
 
         _retry_status_codes = {http_client.UNAUTHORIZED}
 

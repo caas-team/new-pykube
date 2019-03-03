@@ -19,7 +19,7 @@ def test_http(monkeypatch):
 
     mock_send = MagicMock()
     mock_send.side_effect = Exception('MOCK HTTP')
-    monkeypatch.setattr('requests.adapters.HTTPAdapter.send', mock_send)
+    monkeypatch.setattr('pykube.http.KubernetesHTTPAdapter._do_send', mock_send)
 
     with pytest.raises(Exception):
         session.get('http://localhost:9090/test')

@@ -13,6 +13,7 @@ coveralls = "*"
 tox = "*"
 coverage = "*"
 twine = "*"
+responses = "*"
 
 [requires]
 python_version = "3.7"
