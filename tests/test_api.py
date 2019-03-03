@@ -1,7 +1,9 @@
 import json
+import operator
 import pytest
 import responses
 
+import pykube
 from pykube import KubeConfig, HTTPClient, Deployment
 
 
@@ -31,10 +33,59 @@ def requests_mock():
     return responses.RequestsMock(target='pykube.http.KubernetesHTTPAdapter._do_send')
 
 
-def test_list_deployments(kubeconfig, monkeypatch, requests_mock):
+@pytest.fixture
+def api(kubeconfig):
     config = KubeConfig.from_file(str(kubeconfig))
-    api = HTTPClient(config)
+    return HTTPClient(config)
 
+
+def test_get_ready_pods(api, requests_mock):
+    # example from README
+    with requests_mock as rsps:
+        rsps.add(responses.GET, 'https://localhost:9443/api/v1/namespaces/gondor-system/pods',
+                 json={'items': [
+                      {'metadata': {'name': 'pod-1'}, 'status': {}},
+                      {'metadata': {'name': 'pod-2'}, 'status': {'conditions': [{'type': 'Ready', 'status': 'True'}]}}
+                 ]})
+        pods = pykube.Pod.objects(api).filter(namespace="gondor-system")
+        ready_pods = list(filter(operator.attrgetter("ready"), pods))
+        assert len(ready_pods) == 1
+        assert ready_pods[0].name == 'pod-2'
+
+
+def test_get_pod_by_name(api, requests_mock):
+    # example from README
+    with requests_mock as rsps:
+        rsps.add(responses.GET, 'https://localhost:9443/api/v1/namespaces/gondor-system/pods/my-pod',
+                 json={'spec': {'containers': [{'image': 'hjacobs/kube-janitor'}]}})
+
+        pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get(name="my-pod")
+        assert pod.obj["spec"]["containers"][0]["image"] == 'hjacobs/kube-janitor'
+
+
+def test_selector_query(api, requests_mock):
+    # example from README
+    with requests_mock as rsps:
+        rsps.add(responses.GET, 'https://localhost:9443/api/v1/namespaces/gondor-system/pods?labelSelector=gondor.io%2Fname+in+%28api-web%2Capi-worker%29',
+                 json={'items': [{'meta': {}}]})
+
+        pods = pykube.Pod.objects(api).filter(
+            namespace="gondor-system",
+            selector={"gondor.io/name__in": {"api-web", "api-worker"}},
+        )
+        assert len(list(pods)) == 1
+
+        rsps.add(responses.GET, 'https://localhost:9443/api/v1/namespaces/default/pods?fieldSelector=status.phase%3DPending',
+                 json={'items': [{'meta': {}}]})
+
+        pending_pods = pykube.objects.Pod.objects(api).filter(
+            field_selector={"status.phase": "Pending"}
+        )
+
+        assert len(list(pending_pods)) == 1
+
+
+def test_list_deployments(api, requests_mock):
     with requests_mock as rsps:
         rsps.add(responses.GET, 'https://localhost:9443/apis/apps/v1/namespaces/default/deployments',
                  json={'items': []})
@@ -45,10 +96,7 @@ def test_list_deployments(kubeconfig, monkeypatch, requests_mock):
         assert rsps.calls[0].request.headers['Authorization'] == 'Bearer testtoken'
 
 
-def test_list_and_update_deployments(kubeconfig, monkeypatch, requests_mock):
-    config = KubeConfig.from_file(str(kubeconfig))
-    api = HTTPClient(config)
-
+def test_list_and_update_deployments(api, requests_mock):
     with requests_mock as rsps:
         rsps.add(responses.GET, 'https://localhost:9443/apis/apps/v1/namespaces/default/deployments',
                  json={'items': [{'metadata': {'name': 'deploy-1'}, 'spec': {'replicas': 3}}]})
