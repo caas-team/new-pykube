@@ -17,9 +17,7 @@ with open("README.rst") as fp:
 
 install_requires = [
     "requests>=2.12",
-    "PyYAML",
-    "six>=1.10.0",
-    "tzlocal",
+    "PyYAML"
 ]
 
 if sys.version_info < (3,):

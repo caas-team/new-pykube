@@ -18,8 +18,8 @@ except ImportError:
 
 import requests.adapters
 
-from six.moves import http_client
-from six.moves.urllib.parse import urlparse
+from http import HTTPStatus
+from urllib.parse import urlparse
 
 from .exceptions import HTTPError
 from .utils import jsonpath_installed, jsonpath_parse
@@ -132,7 +132,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
 
         response = self._do_send(request, **kwargs)
 
-        _retry_status_codes = {http_client.UNAUTHORIZED}
+        _retry_status_codes = {HTTPStatus.UNAUTHORIZED}
 
         if response.status_code in _retry_status_codes and retry_func and _retry_attempt < 2:
             send_kwargs = {

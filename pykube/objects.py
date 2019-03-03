@@ -2,9 +2,8 @@ import copy
 import json
 import os.path as op
 from inspect import getmro
-import six
 
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 from .exceptions import ObjectDoesNotExist
 from .mixins import ReplicatedMixin, ScalableMixin
 from .query import Query
@@ -23,7 +22,6 @@ class ObjectManager(object):
         return self
 
 
-@six.python_2_unicode_compatible
 class APIObject(object):
 
     objects = ObjectManager()
