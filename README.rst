@@ -190,8 +190,8 @@ You can run pykube against your current kubeconfig context, e.g. local Minikube_
 
     $ pipenv install --dev
     $ pipenv run python3
-    >>> import pykube, os
-    >>> config = pykube.KubeConfig.from_file(os.path.expanduser('~/.kube/config'))
+    >>> import pykube
+    >>> config = pykube.KubeConfig.from_file('~/.kube/config')
     >>> api = pykube.HTTPClient(config)
     >>> list(pykube.Deployment.objects(api))
 
