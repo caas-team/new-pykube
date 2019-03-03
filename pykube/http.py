@@ -5,7 +5,6 @@ HTTP request related code.
 import datetime
 import json
 import posixpath
-import re
 import shlex
 import subprocess
 
@@ -23,10 +22,11 @@ from urllib.parse import urlparse
 
 from .exceptions import HTTPError
 from .utils import jsonpath_installed, jsonpath_parse
+from .config import KubeConfig
 
 from . import __version__
 
-_ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+DEFAULT_HTTP_TIMEOUT = 10  # seconds
 
 
 class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
@@ -35,7 +35,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
     # it can be overwritten in unit tests to mock the actual HTTP calls
     _do_send = requests.adapters.HTTPAdapter.send
 
-    def __init__(self, kube_config, **kwargs):
+    def __init__(self, kube_config: KubeConfig, **kwargs):
         self.kube_config = kube_config
 
         super().__init__(**kwargs)
@@ -150,7 +150,7 @@ class HTTPClient(object):
     Client for interfacing with the Kubernetes API.
     """
 
-    def __init__(self, config):
+    def __init__(self, config: KubeConfig, timeout: float = DEFAULT_HTTP_TIMEOUT):
         """
         Creates a new instance of the HTTPClient.
 
@@ -158,6 +158,7 @@ class HTTPClient(object):
            - `config`: The configuration instance
         """
         self.config = config
+        self.timeout = timeout
         self.url = self.config.cluster["server"]
 
         session = requests.Session()
@@ -193,7 +194,7 @@ class HTTPClient(object):
             setattr(self, cached_attr, r.json())
         return getattr(self, cached_attr)
 
-    def get_kwargs(self, **kwargs):
+    def get_kwargs(self, **kwargs) -> dict:
         """
         Creates a full URL to request based on arguments.
 
@@ -228,6 +229,9 @@ class HTTPClient(object):
             url = url[1:]
         bits.append(url)
         kwargs["url"] = self.url + posixpath.join(*bits)
+        if 'timeout' not in kwargs:
+            # apply default HTTP timeout
+            kwargs['timeout'] = self.timeout
         return kwargs
 
     def raise_for_status(self, resp):
