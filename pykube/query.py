@@ -2,8 +2,7 @@ import json
 
 from collections import namedtuple
 
-from six import string_types
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 
 from .exceptions import ObjectDoesNotExist
 
@@ -168,7 +167,7 @@ class WatchQuery(BaseQuery):
 
 
 def as_selector(value):
-    if isinstance(value, string_types):
+    if isinstance(value, str):
         return value
     s = []
     for k, v in value.items():
@@ -186,9 +185,9 @@ def as_selector(value):
         elif op == "neq":
             s.append("{} != {}".format(label, v))
         elif op == "in":
-            s.append("{} in ({})".format(label, ",".join(v)))
+            s.append("{} in ({})".format(label, ",".join(sorted(v))))
         elif op == "notin":
-            s.append("{} notin ({})".format(label, ",".join(v)))
+            s.append("{} notin ({})".format(label, ",".join(sorted(v))))
         else:
             raise ValueError("{} is not a valid comparison operator".format(op))
     return ",".join(s)

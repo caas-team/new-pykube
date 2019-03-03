@@ -2,9 +2,8 @@ import copy
 import json
 import os.path as op
 from inspect import getmro
-import six
 
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 from .exceptions import ObjectDoesNotExist
 from .mixins import ReplicatedMixin, ScalableMixin
 from .query import Query
@@ -23,7 +22,6 @@ class ObjectManager(object):
         return self
 
 
-@six.python_2_unicode_compatible
 class APIObject(object):
 
     objects = ObjectManager()
@@ -169,21 +167,21 @@ class ConfigMap(NamespacedAPIObject):
 
 class CronJob(NamespacedAPIObject):
 
-    version = "batch/v2alpha1"
+    version = "batch/v1beta1"
     endpoint = "cronjobs"
     kind = "CronJob"
 
 
 class DaemonSet(NamespacedAPIObject):
 
-    version = "extensions/v1beta1"
+    version = "apps/v1"
     endpoint = "daemonsets"
     kind = "DaemonSet"
 
 
 class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
-    version = "extensions/v1beta1"
+    version = "apps/v1"
     endpoint = "deployments"
     kind = "Deployment"
 
@@ -386,7 +384,7 @@ class ReplicationController(NamespacedAPIObject, ReplicatedMixin, ScalableMixin)
 
 class ReplicaSet(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
-    version = "extensions/v1beta1"
+    version = "apps/v1"
     endpoint = "replicasets"
     kind = "ReplicaSet"
 
@@ -426,44 +424,37 @@ class HorizontalPodAutoscaler(NamespacedAPIObject):
     kind = "HorizontalPodAutoscaler"
 
 
-class PetSet(NamespacedAPIObject):
-
-    version = "apps/v1alpha1"
-    endpoint = "petsets"
-    kind = "PetSet"
-
-
 class StatefulSet(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
-    version = "apps/v1beta1"
+    version = "apps/v1"
     endpoint = "statefulsets"
     kind = "StatefulSet"
 
 
 class Role(NamespacedAPIObject):
 
-    version = "rbac.authorization.k8s.io/v1alpha1"
+    version = "rbac.authorization.k8s.io/v1"
     endpoint = "roles"
     kind = "Role"
 
 
 class RoleBinding(NamespacedAPIObject):
 
-    version = "rbac.authorization.k8s.io/v1alpha1"
+    version = "rbac.authorization.k8s.io/v1"
     endpoint = "rolebindings"
     kind = "RoleBinding"
 
 
 class ClusterRole(APIObject):
 
-    version = "rbac.authorization.k8s.io/v1alpha1"
+    version = "rbac.authorization.k8s.io/v1"
     endpoint = "clusterroles"
     kind = "ClusterRole"
 
 
 class ClusterRoleBinding(APIObject):
 
-    version = "rbac.authorization.k8s.io/v1alpha1"
+    version = "rbac.authorization.k8s.io/v1"
     endpoint = "clusterrolebindings"
     kind = "ClusterRoleBinding"
 

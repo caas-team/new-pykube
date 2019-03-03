@@ -3,14 +3,48 @@ pykube.config unittests
 """
 
 import os
+import pytest
+
+from pathlib import Path
 
 from pykube import config, exceptions
 
 from . import TestCase
 
 
-GOOD_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config.yaml"])
-DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config_default_user.yaml"])
+GOOD_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config.yaml"])
+DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config_default_user.yaml"])
+
+
+def test_from_service_account_no_file(tmpdir):
+    with pytest.raises(FileNotFoundError):
+        config.KubeConfig.from_service_account(path=str(tmpdir))
+
+
+def test_from_service_account_(tmpdir):
+    token_file = Path(tmpdir) / 'token'
+    ca_file = Path(tmpdir) / 'ca.crt'
+
+    with token_file.open('w') as fd:
+        fd.write('mytok')
+
+    with ca_file.open('w') as fd:
+        fd.write('myca')
+
+    os.environ['KUBERNETES_SERVICE_HOST'] = '127.0.0.1'
+    os.environ['KUBERNETES_SERVICE_PORT'] = '9443'
+
+    cfg = config.KubeConfig.from_service_account(path=str(tmpdir))
+
+    assert cfg.doc['clusters'][0]['cluster'] == {'server': 'https://127.0.0.1:9443', 'certificate-authority': str(ca_file)}
+    assert cfg.doc['users'][0]['user']['token'] == 'mytok'
+
+
+def test_from_url():
+    cfg = config.KubeConfig.from_url('http://localhost:8080')
+    assert cfg.doc['clusters'][0]['cluster'] == {'server': 'http://localhost:8080'}
+    assert 'users' not in cfg.doc
+
 
 class TestConfig(TestCase):
 

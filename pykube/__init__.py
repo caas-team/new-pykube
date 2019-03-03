@@ -2,6 +2,8 @@
 Python client for Kubernetes
 """
 
+__version__ = '0.17a2'
+
 from .config import KubeConfig  # noqa
 from .exceptions import KubernetesError, PyKubeError, ObjectDoesNotExist  # noqa
 from .http import HTTPClient  # noqa
@@ -21,7 +23,6 @@ from .objects import (  # noqa
     Node,
     PersistentVolume,
     PersistentVolumeClaim,
-    PetSet,
     Pod,
     PodSecurityPolicy,
     ReplicationController,

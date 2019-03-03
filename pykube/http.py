@@ -18,17 +18,27 @@ except ImportError:
 
 import requests.adapters
 
-from six.moves import http_client
-from six.moves.urllib.parse import urlparse
+from http import HTTPStatus
+from urllib.parse import urlparse
 
 from .exceptions import HTTPError
 from .utils import jsonpath_installed, jsonpath_parse
 
+from . import __version__
 
 _ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 
 
-class KubernetesHTTPAdapterSendMixin(object):
+class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
+
+    # _do_send: the actual send method of HTTPAdapter
+    # it can be overwritten in unit tests to mock the actual HTTP calls
+    _do_send = requests.adapters.HTTPAdapter.send
+
+    def __init__(self, kube_config, **kwargs):
+        self.kube_config = kube_config
+
+        super().__init__(**kwargs)
 
     def _persist_credentials(self, config, token, expiry):
         user_name = config.contexts[config.current_context]["user"]
@@ -120,10 +130,9 @@ class KubernetesHTTPAdapterSendMixin(object):
         elif "insecure-skip-tls-verify" in config.cluster:
             kwargs["verify"] = not config.cluster["insecure-skip-tls-verify"]
 
-        send = super(KubernetesHTTPAdapterSendMixin, self).send
-        response = send(request, **kwargs)
+        response = self._do_send(request, **kwargs)
 
-        _retry_status_codes = {http_client.UNAUTHORIZED}
+        _retry_status_codes = {HTTPStatus.UNAUTHORIZED}
 
         if response.status_code in _retry_status_codes and retry_func and _retry_attempt < 2:
             send_kwargs = {
@@ -136,19 +145,10 @@ class KubernetesHTTPAdapterSendMixin(object):
         return response
 
 
-class KubernetesHTTPAdapter(KubernetesHTTPAdapterSendMixin, requests.adapters.HTTPAdapter):
-
-    def __init__(self, kube_config, **kwargs):
-        self.kube_config = kube_config
-        super(KubernetesHTTPAdapter, self).__init__(**kwargs)
-
-
 class HTTPClient(object):
     """
     Client for interfacing with the Kubernetes API.
     """
-
-    _session = None
 
     def __init__(self, config):
         """
@@ -161,6 +161,7 @@ class HTTPClient(object):
         self.url = self.config.cluster["server"]
 
         session = requests.Session()
+        session.headers['User-Agent'] = f'pykube-ng/{__version__}'
         session.mount("https://", KubernetesHTTPAdapter(self.config))
         session.mount("http://", KubernetesHTTPAdapter(self.config))
         self.session = session

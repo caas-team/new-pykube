@@ -6,7 +6,7 @@ try:
 except ImportError:
     jsonpath_installed = False
 
-from six.moves import zip_longest
+from itertools import zip_longest
 
 
 empty = object()

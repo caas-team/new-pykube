@@ -1,6 +1,15 @@
 import sys
 
+from pathlib import Path
 from setuptools import setup, find_packages
+
+
+def read_version(package):
+    with (Path(package) / '__init__.py').open('r') as fd:
+        for line in fd:
+            # do not use "exec" here and do manual parsing to not require deps
+            if line.startswith('__version__ = '):
+                return line.split()[-1].strip().strip('\'')
 
 
 with open("README.rst") as fp:
@@ -8,9 +17,7 @@ with open("README.rst") as fp:
 
 install_requires = [
     "requests>=2.12",
-    "PyYAML",
-    "six>=1.10.0",
-    "tzlocal",
+    "PyYAML"
 ]
 
 if sys.version_info < (3,):
@@ -19,14 +26,15 @@ if sys.version_info < (3,):
     ])
 
 setup(
-    name="pykube",
-    version="0.16a1",
+    name="pykube-ng",
+    version=read_version('pykube'),
     description="Python client library for Kubernetes",
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     author="Eldarion, Inc.",
     author_email="development@eldarion.com",
     license="Apache",
-    url="https://github.com/kelproject/pykube",
+    url="https://github.com/hjacobs/pykube",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",
@@ -34,14 +42,12 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3 :: Only",
     ],
     zip_safe=False,
     packages=find_packages(),
-    entry_points={
-        "httpie.plugins.transport.v1": [
-            "httpie_pykube = pykube.contrib.httpie_plugin:PyKubeTransportPlugin"
-        ],
-    },
     install_requires=install_requires,
     extras_require={
         "gcp": [

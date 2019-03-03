@@ -1,39 +1,37 @@
-pykube
-======
+pykube-ng
+=========
 
-.. image:: http://slack.kelproject.com/badge.svg
-   :target: http://slack.kelproject.com/
+.. image:: https://img.shields.io/travis/hjacobs/pykube.svg
+   :target: https://travis-ci.org/hjacobs/pykube
 
-.. image:: https://img.shields.io/travis/kelproject/pykube.svg
-   :target: https://travis-ci.org/kelproject/pykube
+.. image:: https://coveralls.io/repos/github/hjacobs/pykube/badge.svg?branch=master;_=1
+   :target: https://coveralls.io/github/hjacobs/pykube?branch=master
+   :alt: Code Coverage
 
-.. image:: https://img.shields.io/pypi/dm/pykube.svg
-   :target:  https://pypi.python.org/pypi/pykube/
+.. image:: https://img.shields.io/pypi/v/pykube-ng.svg
+   :target:  https://pypi.python.org/pypi/pykube-ng/
 
-.. image:: https://img.shields.io/pypi/v/pykube.svg
-   :target:  https://pypi.python.org/pypi/pykube/
+.. image:: https://img.shields.io/pypi/pyversions/pykube-ng.svg
+   :target:  https://pypi.python.org/pypi/pykube-ng/
 
 .. image:: https://img.shields.io/badge/license-apache-blue.svg
-   :target:  https://pypi.python.org/pypi/pykube/
+   :target:  https://pypi.python.org/pypi/pykube-ng/
 
-Python client library for Kubernetes
+Python client library for Kubernetes.
 
-.. image:: https://storage.googleapis.com/kel-assets/kel_full-02_200.jpg
-   :target: http://kelproject.com/
+This is a fork of `kelproject/pykube <https://github.com/kelproject/pykube>`_ which is no longer maintained (archived). Here the original text of the pykube README:
 
-Kel is an open source Platform as a Service (PaaS) from Eldarion, Inc. that
-makes it easy to manage web application deployment and hosting through the
-entire lifecycle from development through testing to production. It adds
-components and tools on top of Kubernetes that help developers manage their
-application infrastructure. Kel builds on Eldarion's 7+ years experience running
-one of the leading Python and Django PaaSes.
-
-For more information about Kel, see `kelproject.com`_, follow us on Twitter
-`@projectkel`_, and join our `Slack team`_.
+    Kel is an open source Platform as a Service (PaaS) from Eldarion, Inc. that
+    makes it easy to manage web application deployment and hosting through the
+    entire lifecycle from development through testing to production. It adds
+    components and tools on top of Kubernetes that help developers manage their
+    application infrastructure. Kel builds on Eldarion's 7+ years experience running
+    one of the leading Python and Django PaaSes.
+    For more information about Kel, see `kelproject.com`_ or follow us on Twitter
+    `@projectkel`_.
 
 .. _kelproject.com: http://kelproject.com/
 .. _@projectkel: https://twitter.com/projectkel
-.. _Slack team: http://slack.kelproject.com/
 
 Features
 --------
@@ -46,7 +44,7 @@ Installation
 
 To install pykube, use pip::
 
-    pip install pykube
+    pip install pykube-ng
 
 Usage
 -----
@@ -58,7 +56,7 @@ Query for all ready pods in a custom namespace:
     import operator
     import pykube
 
-    api = pykube.HTTPClient(pykube.KubeConfig.from_file("/Users/<username>/.kube/config"))
+    api = pykube.HTTPClient(pykube.KubeConfig.from_file("~/.kube/config"))
     pods = pykube.Pod.objects(api).filter(namespace="gondor-system")
     ready_pods = filter(operator.attrgetter("ready"), pods)
 
@@ -93,21 +91,23 @@ Watch query:
         print(watch_event.type) # 'ADDED', 'DELETED', 'MODIFIED'
         print(watch_event.object) # pykube.Job object
 
-Create a ReplicationController:
+Create a Deployment:
 
 .. code:: python
 
     obj = {
-        "apiVersion": "v1",
-        "kind": "ReplicationController",
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
         "metadata": {
-            "name": "my-rc",
+            "name": "my-deploy",
             "namespace": "gondor-system"
         },
         "spec": {
             "replicas": 3,
             "selector": {
-                "app": "nginx"
+                "matchLabels": {
+                    "app": "nginx"
+                }
             },
             "template": {
                 "metadata": {
@@ -129,48 +129,58 @@ Create a ReplicationController:
             }
         }
     }
-    pykube.ReplicationController(api, obj).create()
+    pykube.Deployment(api, obj).create()
 
-Delete a ReplicationController:
+Delete a Deployment:
 
 .. code:: python
 
     obj = {
-        "apiVersion": "v1",
-        "kind": "ReplicationController",
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
         "metadata": {
-            "name": "my-rc",
+            "name": "my-deploy",
             "namespace": "gondor-system"
         }
     }
-    pykube.ReplicationController(api, obj).delete()
+    pykube.Deployment(api, obj).delete()
 
 Check server version:
 
 .. code:: python
 
-    api = pykube.HTTPClient(pykube.KubeConfig.from_file("/Users/<username>/.kube/config"))
+    api = pykube.HTTPClient(pykube.KubeConfig.from_file("~/.kube/config"))
     api.version
 
-HTTPie
-------
-
-pykube can be used together with HTTPie for Kubernetes command line querying goodness. For example:
-
-.. code:: shell
-
-    pip install httpie
-    http pykube://minikube/api/v1/services
-
-The above example will construct an HTTP request to the cluster behind the ``minikube`` context and
-show you the response containing all services.
 
 Requirements
 ------------
 
-* Python 2.7 or 3.3+
+* Python 3.6+
 * requests (included in ``install_requires``)
 * PyYAML (included in ``install_requires``)
+
+
+Local Development
+-----------------
+
+You can run pykube against your current kubeconfig context, e.g. local Minikube_:
+
+.. code-block:: bash
+
+    $ pipenv install --dev
+    $ pipenv run python3
+    >>> import pykube
+    >>> config = pykube.KubeConfig.from_file('~/.kube/config')
+    >>> api = pykube.HTTPClient(config)
+    >>> list(pykube.Deployment.objects(api))
+
+To run PEP8 (flake8) checks and unit tests including coverage report:
+
+.. code-block:: bash
+
+    $ make test
+
 
 License
 -------
@@ -182,23 +192,20 @@ The code in this project is licensed under the Apache License, version 2.0
 Contributing
 ------------
 
-By making a contribution to this project, you are agreeing to the `Developer
-Certificate of Origin v1.1`_ (also included in this repository under DCO.txt).
+Easiest way to contribute is to provide feedback! We would love to hear what you like and what you think is missing.
+Create an issue or `ping try_except_ on Twitter`_.
 
-.. _Developer Certificate of Origin v1.1: http://developercertificate.org
+PRs are welcome. Please also have a look at `issues labeled with "help wanted"`_.
 
 
 Code of Conduct
 ----------------
 
-In order to foster a kind, inclusive, and harassment-free community, the Kel
-Project follows the `Contributor Covenant Code of Conduct`_.
+In order to foster a kind, inclusive, and harassment-free community, this project follows the `Contributor Covenant Code of Conduct`_.
 
 .. _Contributor Covenant Code of Conduct: http://contributor-covenant.org/version/1/4/
 
 
-Commercial Support
-------------------
-
-Commercial support for Kel is available through Eldarion, please contact
-info@eldarion.com.
+.. _ping try_except_ on Twitter: https://twitter.com/try_except_
+.. _issues labeled with "help wanted": https://github.com/hjacobs/pykube/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22
+.. _Minikube: https://github.com/kubernetes/minikube
