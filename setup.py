@@ -50,11 +50,6 @@ setup(
     ],
     zip_safe=False,
     packages=find_packages(),
-    entry_points={
-        "httpie.plugins.transport.v1": [
-            "httpie_pykube = pykube.contrib.httpie_plugin:PyKubeTransportPlugin"
-        ],
-    },
     install_requires=install_requires,
     extras_require={
         "gcp": [
