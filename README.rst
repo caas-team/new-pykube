@@ -229,3 +229,4 @@ Project follows the `Contributor Covenant Code of Conduct`_.
 
 .. _ping try_except_ on Twitter: https://twitter.com/try_except_
 .. _issues labeled with "help wanted": https://github.com/hjacobs/pykube/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22
+.. _Minikube: https://github.com/kubernetes/minikube

@@ -6,6 +6,6 @@ install:
   - pip install pipenv
   - pipenv install --dev
 script:
-  - make test
+  - make test package
 after_success:
   - coveralls

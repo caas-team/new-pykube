@@ -23,6 +23,7 @@ setup(
     version="0.17a1",
     description="Python client library for Kubernetes",
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     author="Eldarion, Inc.",
     author_email="development@eldarion.com",
     license="Apache",
