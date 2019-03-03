@@ -39,6 +39,13 @@ def api(kubeconfig):
     return HTTPClient(config)
 
 
+def test_api_version(api, requests_mock):
+    with requests_mock as rsps:
+        rsps.add(responses.GET, 'https://localhost:9443/version/',
+                 json={'major': 1, 'minor': 13})
+        assert api.version == (1, 13)
+
+
 def test_get_ready_pods(api, requests_mock):
     # example from README
     with requests_mock as rsps:
