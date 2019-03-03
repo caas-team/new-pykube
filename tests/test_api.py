@@ -93,6 +93,62 @@ def test_selector_query(api, requests_mock):
         assert len(list(pending_pods)) == 1
 
 
+def test_create_delete_deployment(api, requests_mock):
+    # example from README
+    with requests_mock as rsps:
+        rsps.add(responses.POST, 'https://localhost:9443/apis/apps/v1/namespaces/gondor-system/deployments',
+                 json={})
+
+        obj = {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "name": "my-deploy",
+                "namespace": "gondor-system"
+            },
+            "spec": {
+                "replicas": 3,
+                "selector": {
+                    "matchLabels": {
+                        "app": "nginx"
+                    }
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "nginx"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "nginx",
+                                "image": "nginx",
+                                "ports": [
+                                    {"containerPort": 80}
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+        pykube.Deployment(api, obj).create()
+
+        rsps.add(responses.DELETE, 'https://localhost:9443/apis/apps/v1/namespaces/gondor-system/deployments/my-deploy',
+                 json={})
+
+        obj = {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "name": "my-deploy",
+                "namespace": "gondor-system"
+            }
+        }
+        pykube.Deployment(api, obj).delete()
+
+
 def test_list_deployments(api, requests_mock):
     with requests_mock as rsps:
         rsps.add(responses.GET, 'https://localhost:9443/apis/apps/v1/namespaces/default/deployments',
