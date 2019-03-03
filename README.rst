@@ -1,20 +1,19 @@
 pykube
 ======
 
-.. image:: http://slack.kelproject.com/badge.svg
-   :target: http://slack.kelproject.com/
+.. image:: https://img.shields.io/travis/hjacobs/pykube.svg
+   :target: https://travis-ci.org/hjacobs/pykube
 
-.. image:: https://img.shields.io/travis/kelproject/pykube.svg
-   :target: https://travis-ci.org/kelproject/pykube
+.. image:: https://img.shields.io/pypi/dm/pykube-ng.svg
+   :target:  https://pypi.python.org/pypi/pykube-ng/
 
-.. image:: https://img.shields.io/pypi/dm/pykube.svg
-   :target:  https://pypi.python.org/pypi/pykube/
-
-.. image:: https://img.shields.io/pypi/v/pykube.svg
-   :target:  https://pypi.python.org/pypi/pykube/
+.. image:: https://img.shields.io/pypi/v/pykube-ng.svg
+   :target:  https://pypi.python.org/pypi/pykube-ng/
 
 .. image:: https://img.shields.io/badge/license-apache-blue.svg
-   :target:  https://pypi.python.org/pypi/pykube/
+   :target:  https://pypi.python.org/pypi/pykube-ng/
+
+**IMPORTANT**: This is a fork of `kelproject/pykube <https://github.com/kelproject/pykube>`_ which is no longer maintained (archived)!
 
 Python client library for Kubernetes
 
@@ -46,7 +45,7 @@ Installation
 
 To install pykube, use pip::
 
-    pip install pykube
+    pip install pykube-ng
 
 Usage
 -----

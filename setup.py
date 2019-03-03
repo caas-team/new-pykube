@@ -19,14 +19,14 @@ if sys.version_info < (3,):
     ])
 
 setup(
-    name="pykube",
-    version="0.16a1",
+    name="pykube-ng",
+    version="0.17a1",
     description="Python client library for Kubernetes",
     long_description=long_description,
     author="Eldarion, Inc.",
     author_email="development@eldarion.com",
     license="Apache",
-    url="https://github.com/kelproject/pykube",
+    url="https://github.com/hjacobs/pykube",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",
