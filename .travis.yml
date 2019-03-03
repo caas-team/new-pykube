@@ -1,9 +1,11 @@
+dist: xenial
 language: python
 python:
   - "2.7"
   - "3.6"
 install:
-  - pip install tox coveralls
+  - pip install pipenv
+  - pipenv install --dev
 script:
   - tox -e py${TRAVIS_PYTHON_VERSION//[.]/}
 after_success:

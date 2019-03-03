@@ -12,6 +12,7 @@ from . import TestCase
 GOOD_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config.yaml"])
 DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config_default_user.yaml"])
 
+
 class TestConfig(TestCase):
 
     def setUp(self):

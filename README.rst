@@ -4,6 +4,10 @@ pykube
 .. image:: https://img.shields.io/travis/hjacobs/pykube.svg
    :target: https://travis-ci.org/hjacobs/pykube
 
+.. image:: https://coveralls.io/repos/github/hjacobs/pykube/badge.svg?branch=master;_=1
+   :target: https://coveralls.io/github/hjacobs/pykube?branch=master
+   :alt: Code Coverage
+
 .. image:: https://img.shields.io/pypi/dm/pykube-ng.svg
    :target:  https://pypi.python.org/pypi/pykube-ng/
 
@@ -151,6 +155,7 @@ Check server version:
     api = pykube.HTTPClient(pykube.KubeConfig.from_file("/Users/<username>/.kube/config"))
     api.version
 
+
 HTTPie
 ------
 
@@ -164,12 +169,35 @@ pykube can be used together with HTTPie for Kubernetes command line querying goo
 The above example will construct an HTTP request to the cluster behind the ``minikube`` context and
 show you the response containing all services.
 
+
 Requirements
 ------------
 
-* Python 2.7 or 3.3+
+* Python 3.6+
 * requests (included in ``install_requires``)
 * PyYAML (included in ``install_requires``)
+
+
+Local Development
+-----------------
+
+You can run pykube against your current kubeconfig context, e.g. local Minikube_:
+
+.. code-block:: bash
+
+    $ pipenv install --dev
+    $ pipenv run python3
+    >>> import pykube, os
+    >>> config = pykube.KubeConfig.from_file(os.path.expanduser('~/.kube/config'))
+    >>> api = pykube.HTTPClient(config)
+    >>> list(pykube.Deployment.objects(api))
+
+To run PEP8 (flake8) checks and unit tests including coverage report:
+
+.. code-block:: bash
+
+    $ make test
+
 
 License
 -------
@@ -181,10 +209,10 @@ The code in this project is licensed under the Apache License, version 2.0
 Contributing
 ------------
 
-By making a contribution to this project, you are agreeing to the `Developer
-Certificate of Origin v1.1`_ (also included in this repository under DCO.txt).
+Easiest way to contribute is to provide feedback! We would love to hear what you like and what you think is missing.
+Create an issue or `ping try_except_ on Twitter`_.
 
-.. _Developer Certificate of Origin v1.1: http://developercertificate.org
+PRs are welcome. Please also have a look at `issues labeled with "help wanted"`_.
 
 
 Code of Conduct
@@ -196,8 +224,5 @@ Project follows the `Contributor Covenant Code of Conduct`_.
 .. _Contributor Covenant Code of Conduct: http://contributor-covenant.org/version/1/4/
 
 
-Commercial Support
-------------------
-
-Commercial support for Kel is available through Eldarion, please contact
-info@eldarion.com.
+.. _ping try_except_ on Twitter: https://twitter.com/try_except_
+.. _issues labeled with "help wanted": https://github.com/hjacobs/pykube/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22

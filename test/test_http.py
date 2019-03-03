@@ -3,25 +3,26 @@ pykube.http unittests
 """
 
 import os
+import pytest
+
+from unittest.mock import MagicMock
 
 from pykube.http import HTTPClient
 from pykube.config import KubeConfig
 
-from . import TestCase
-
 GOOD_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config_with_context.yaml"])
 
 
-class TestHttp(TestCase):
+def test_http(monkeypatch):
+    cfg = KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
+    session = HTTPClient(cfg).session
 
-    def setUp(self):
-        self.cfg = KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
+    mock_send = MagicMock()
+    mock_send.side_effect = Exception('MOCK HTTP')
+    monkeypatch.setattr('requests.adapters.HTTPAdapter.send', mock_send)
 
-    def tearDown(self):
-        self.cfg = None
+    with pytest.raises(Exception):
+        session.get('http://localhost:9090/test')
 
-    def test_build_session_basic(self):
-        """
-        """
-        session = HTTPClient(self.cfg).session
-        self.assertEqual(session.auth, ('adm', 'somepassword'))
+    mock_send.assert_called_once()
+    assert mock_send.call_args[0][0].headers['Authorization'] == 'Basic YWRtOnNvbWVwYXNzd29yZA=='

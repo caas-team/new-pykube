@@ -28,7 +28,11 @@ from .utils import jsonpath_installed, jsonpath_parse
 _ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 
 
-class KubernetesHTTPAdapterSendMixin(object):
+class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
+
+    def __init__(self, kube_config, **kwargs):
+        self.kube_config = kube_config
+        super(KubernetesHTTPAdapter, self).__init__(**kwargs)
 
     def _persist_credentials(self, config, token, expiry):
         user_name = config.contexts[config.current_context]["user"]
@@ -120,7 +124,7 @@ class KubernetesHTTPAdapterSendMixin(object):
         elif "insecure-skip-tls-verify" in config.cluster:
             kwargs["verify"] = not config.cluster["insecure-skip-tls-verify"]
 
-        send = super(KubernetesHTTPAdapterSendMixin, self).send
+        send = super(KubernetesHTTPAdapter, self).send
         response = send(request, **kwargs)
 
         _retry_status_codes = {http_client.UNAUTHORIZED}
@@ -136,19 +140,10 @@ class KubernetesHTTPAdapterSendMixin(object):
         return response
 
 
-class KubernetesHTTPAdapter(KubernetesHTTPAdapterSendMixin, requests.adapters.HTTPAdapter):
-
-    def __init__(self, kube_config, **kwargs):
-        self.kube_config = kube_config
-        super(KubernetesHTTPAdapter, self).__init__(**kwargs)
-
-
 class HTTPClient(object):
     """
     Client for interfacing with the Kubernetes API.
     """
-
-    _session = None
 
     def __init__(self, config):
         """
