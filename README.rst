@@ -14,6 +14,9 @@ pykube
 .. image:: https://img.shields.io/pypi/v/pykube-ng.svg
    :target:  https://pypi.python.org/pypi/pykube-ng/
 
+.. image:: https://img.shields.io/pypi/pyversions/pykube-ng.svg
+   :target:  https://pypi.python.org/pypi/pykube-ng/
+
 .. image:: https://img.shields.io/badge/license-apache-blue.svg
    :target:  https://pypi.python.org/pypi/pykube-ng/
 
