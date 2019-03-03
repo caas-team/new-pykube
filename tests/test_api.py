@@ -58,9 +58,17 @@ def test_get_pod_by_name(api, requests_mock):
     with requests_mock as rsps:
         rsps.add(responses.GET, 'https://localhost:9443/api/v1/namespaces/gondor-system/pods/my-pod',
                  json={'spec': {'containers': [{'image': 'hjacobs/kube-janitor'}]}})
+        rsps.add(responses.GET, 'https://localhost:9443/api/v1/namespaces/gondor-system/pods/other-pod',
+                 status=404)
 
         pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get(name="my-pod")
         assert pod.obj["spec"]["containers"][0]["image"] == 'hjacobs/kube-janitor'
+
+        pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get_or_none(name="my-pod")
+        assert pod.obj["spec"]["containers"][0]["image"] == 'hjacobs/kube-janitor'
+
+        pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get_or_none(name="other-pod")
+        assert pod is None
 
 
 def test_selector_query(api, requests_mock):
