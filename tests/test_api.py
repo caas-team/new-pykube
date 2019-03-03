@@ -74,6 +74,9 @@ def test_get_pod_by_name(api, requests_mock):
         pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get_or_none(name="my-pod")
         assert pod.obj["spec"]["containers"][0]["image"] == 'hjacobs/kube-janitor'
 
+        pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get_by_name("my-pod")
+        assert pod.obj["spec"]["containers"][0]["image"] == 'hjacobs/kube-janitor'
+
         pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get_or_none(name="other-pod")
         assert pod is None
 
