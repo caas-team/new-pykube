@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 from pykube.http import HTTPClient
 from pykube.config import KubeConfig
 
-GOOD_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config_with_context.yaml"])
+GOOD_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config_with_context.yaml"])
 
 
 def test_http(monkeypatch):

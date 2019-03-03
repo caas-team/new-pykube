@@ -9,8 +9,8 @@ from pykube import config, exceptions
 from . import TestCase
 
 
-GOOD_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config.yaml"])
-DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config_default_user.yaml"])
+GOOD_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config.yaml"])
+DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config_default_user.yaml"])
 
 
 class TestConfig(TestCase):
