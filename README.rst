@@ -1,5 +1,5 @@
-pykube
-======
+pykube-ng
+=========
 
 .. image:: https://img.shields.io/travis/hjacobs/pykube.svg
    :target: https://travis-ci.org/hjacobs/pykube
@@ -7,9 +7,6 @@ pykube
 .. image:: https://coveralls.io/repos/github/hjacobs/pykube/badge.svg?branch=master;_=1
    :target: https://coveralls.io/github/hjacobs/pykube?branch=master
    :alt: Code Coverage
-
-.. image:: https://img.shields.io/pypi/dm/pykube-ng.svg
-   :target:  https://pypi.python.org/pypi/pykube-ng/
 
 .. image:: https://img.shields.io/pypi/v/pykube-ng.svg
    :target:  https://pypi.python.org/pypi/pykube-ng/
@@ -20,26 +17,21 @@ pykube
 .. image:: https://img.shields.io/badge/license-apache-blue.svg
    :target:  https://pypi.python.org/pypi/pykube-ng/
 
-**IMPORTANT**: This is a fork of `kelproject/pykube <https://github.com/kelproject/pykube>`_ which is no longer maintained (archived)!
+Python client library for Kubernetes.
 
-Python client library for Kubernetes
+This is a fork of `kelproject/pykube <https://github.com/kelproject/pykube>`_ which is no longer maintained (archived). Here the original text of the pykube README:
 
-.. image:: https://storage.googleapis.com/kel-assets/kel_full-02_200.jpg
-   :target: http://kelproject.com/
-
-Kel is an open source Platform as a Service (PaaS) from Eldarion, Inc. that
-makes it easy to manage web application deployment and hosting through the
-entire lifecycle from development through testing to production. It adds
-components and tools on top of Kubernetes that help developers manage their
-application infrastructure. Kel builds on Eldarion's 7+ years experience running
-one of the leading Python and Django PaaSes.
-
-For more information about Kel, see `kelproject.com`_, follow us on Twitter
-`@projectkel`_, and join our `Slack team`_.
+    Kel is an open source Platform as a Service (PaaS) from Eldarion, Inc. that
+    makes it easy to manage web application deployment and hosting through the
+    entire lifecycle from development through testing to production. It adds
+    components and tools on top of Kubernetes that help developers manage their
+    application infrastructure. Kel builds on Eldarion's 7+ years experience running
+    one of the leading Python and Django PaaSes.
+    For more information about Kel, see `kelproject.com`_ or follow us on Twitter
+    `@projectkel`_.
 
 .. _kelproject.com: http://kelproject.com/
 .. _@projectkel: https://twitter.com/projectkel
-.. _Slack team: http://slack.kelproject.com/
 
 Features
 --------
@@ -209,8 +201,7 @@ PRs are welcome. Please also have a look at `issues labeled with "help wanted"`_
 Code of Conduct
 ----------------
 
-In order to foster a kind, inclusive, and harassment-free community, the Kel
-Project follows the `Contributor Covenant Code of Conduct`_.
+In order to foster a kind, inclusive, and harassment-free community, this project follows the `Contributor Covenant Code of Conduct`_.
 
 .. _Contributor Covenant Code of Conduct: http://contributor-covenant.org/version/1/4/
 
