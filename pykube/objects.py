@@ -464,3 +464,10 @@ class PodSecurityPolicy(APIObject):
     version = "extensions/v1beta1"
     endpoint = "podsecuritypolicies"
     kind = "PodSecurityPolicy"
+
+
+class PodDisruptionBudget(APIObject):
+
+    version = "policy/v1beta1"
+    endpoint = "poddisruptionbudgets"
+    kind = "PodDisruptionBudget"

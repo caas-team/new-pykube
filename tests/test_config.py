@@ -6,6 +6,7 @@ import os
 import pytest
 
 from pathlib import Path
+from unittest.mock import MagicMock
 
 from pykube import config, exceptions
 
@@ -44,6 +45,36 @@ def test_from_url():
     cfg = config.KubeConfig.from_url('http://localhost:8080')
     assert cfg.doc['clusters'][0]['cluster'] == {'server': 'http://localhost:8080'}
     assert 'users' not in cfg.doc
+
+
+@pytest.fixture
+def kubeconfig(tmpdir):
+    kubeconfig = tmpdir.join('kubeconfig')
+    kubeconfig.write('''
+apiVersion: v1
+clusters:
+- cluster: {server: 'https://localhost:9443'}
+  name: test
+contexts:
+- context: {cluster: test, user: test}
+  name: test
+current-context: test
+kind: Config
+preferences: {}
+users:
+- name: test
+  user: {token: testtoken}
+    ''')
+    return kubeconfig
+
+
+def test_from_default_kubeconfig(monkeypatch, kubeconfig):
+    mock = MagicMock()
+    mock.return_value = str(kubeconfig)
+    monkeypatch.setattr('os.path.expanduser', mock)
+    cfg = config.KubeConfig.from_file()
+    mock.assert_called_with('~/.kube/config')
+    assert cfg.doc['clusters'][0]['cluster'] == {'server': 'https://localhost:9443'}
 
 
 class TestConfig(TestCase):

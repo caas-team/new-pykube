@@ -24,6 +24,7 @@ from .objects import (  # noqa
     PersistentVolume,
     PersistentVolumeClaim,
     Pod,
+    PodDisruptionBudget,
     PodSecurityPolicy,
     ReplicationController,
     ReplicaSet,

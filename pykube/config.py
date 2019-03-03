@@ -60,13 +60,15 @@ class KubeConfig(object):
         return self
 
     @classmethod
-    def from_file(cls, filename, **kwargs):
+    def from_file(cls, filename=None, **kwargs):
         """
         Creates an instance of the KubeConfig class from a kubeconfig file.
 
         :Parameters:
            - `filename`: The full path to the configuration file
         """
+        if not filename:
+            filename = os.getenv('KUBECONFIG', '~/.kube/config')
         filename = os.path.expanduser(filename)
         if not os.path.isfile(filename):
             raise exceptions.PyKubeError("Configuration file {} not found".format(filename))
