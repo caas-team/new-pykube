@@ -2,6 +2,8 @@
 Python client for Kubernetes
 """
 
+__version__ = 'v0.15.0-31-g1328c94-dirty'
+
 from .config import KubeConfig  # noqa
 from .exceptions import KubernetesError, PyKubeError, ObjectDoesNotExist  # noqa
 from .http import HTTPClient  # noqa

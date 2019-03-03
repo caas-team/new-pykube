@@ -18,3 +18,6 @@ package: test
 
 upload: package
 	pipenv run twine upload dist/pykube*
+
+version:
+	sed -i "s/__version__ = .*/__version__ = '${VERSION}'/" pykube/__init__.py

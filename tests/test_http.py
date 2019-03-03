@@ -7,6 +7,7 @@ import pytest
 
 from unittest.mock import MagicMock
 
+from pykube import __version__
 from pykube.http import HTTPClient
 from pykube.config import KubeConfig
 
@@ -26,3 +27,4 @@ def test_http(monkeypatch):
 
     mock_send.assert_called_once()
     assert mock_send.call_args[0][0].headers['Authorization'] == 'Basic YWRtOnNvbWVwYXNzd29yZA=='
+    assert mock_send.call_args[0][0].headers['User-Agent'] == f'pykube-ng/{__version__}'

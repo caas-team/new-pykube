@@ -24,6 +24,7 @@ from six.moves.urllib.parse import urlparse
 from .exceptions import HTTPError
 from .utils import jsonpath_installed, jsonpath_parse
 
+from . import __version__
 
 _ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 
@@ -160,6 +161,7 @@ class HTTPClient(object):
         self.url = self.config.cluster["server"]
 
         session = requests.Session()
+        session.headers['User-Agent'] = f'pykube-ng/{__version__}'
         session.mount("https://", KubernetesHTTPAdapter(self.config))
         session.mount("http://", KubernetesHTTPAdapter(self.config))
         self.session = session

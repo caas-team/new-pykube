@@ -1,6 +1,15 @@
 import sys
 
+from pathlib import Path
 from setuptools import setup, find_packages
+
+
+def read_version(package):
+    with (Path(package) / '__init__.py').open('r') as fd:
+        for line in fd:
+            # do not use "exec" here and do manual parsing to not require deps
+            if line.startswith('__version__ = '):
+                return line.split()[-1].strip().strip('\'')
 
 
 with open("README.rst") as fp:
@@ -20,7 +29,7 @@ if sys.version_info < (3,):
 
 setup(
     name="pykube-ng",
-    version="0.17a1",
+    version=read_version('pykube'),
     description="Python client library for Kubernetes",
     long_description=long_description,
     long_description_content_type='text/x-rst',
