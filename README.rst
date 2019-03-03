@@ -99,21 +99,23 @@ Watch query:
         print(watch_event.type) # 'ADDED', 'DELETED', 'MODIFIED'
         print(watch_event.object) # pykube.Job object
 
-Create a ReplicationController:
+Create a Deployment:
 
 .. code:: python
 
     obj = {
-        "apiVersion": "v1",
-        "kind": "ReplicationController",
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
         "metadata": {
-            "name": "my-rc",
+            "name": "my-deploy",
             "namespace": "gondor-system"
         },
         "spec": {
             "replicas": 3,
             "selector": {
-                "app": "nginx"
+                "matchLabels": {
+                    "app": "nginx"
+                }
             },
             "template": {
                 "metadata": {
@@ -135,27 +137,27 @@ Create a ReplicationController:
             }
         }
     }
-    pykube.ReplicationController(api, obj).create()
+    pykube.Deployment(api, obj).create()
 
-Delete a ReplicationController:
+Delete a Deployment:
 
 .. code:: python
 
     obj = {
-        "apiVersion": "v1",
-        "kind": "ReplicationController",
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
         "metadata": {
-            "name": "my-rc",
+            "name": "my-deploy",
             "namespace": "gondor-system"
         }
     }
-    pykube.ReplicationController(api, obj).delete()
+    pykube.Deployment(api, obj).delete()
 
 Check server version:
 
 .. code:: python
 
-    api = pykube.HTTPClient(pykube.KubeConfig.from_file("/Users/<username>/.kube/config"))
+    api = pykube.HTTPClient(pykube.KubeConfig.from_file("~/.kube/config"))
     api.version
 
 

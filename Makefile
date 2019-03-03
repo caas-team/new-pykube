@@ -4,6 +4,9 @@ VERSION          ?= $(shell git describe --tags --always --dirty)
 
 default: package
 
+clean:
+	rm -fr build dist *egg-info
+
 test:
 	pipenv run flake8
 	pipenv run coverage run --source=pykube -m py.test
