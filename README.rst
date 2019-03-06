@@ -17,7 +17,7 @@ pykube-ng
 .. image:: https://img.shields.io/badge/license-apache-blue.svg
    :target:  https://pypi.python.org/pypi/pykube-ng/
 
-Python client library for Kubernetes.
+Pykube (pykube-ng) is a lightweight Python 3+ client library for Kubernetes.
 
 This is a fork of `kelproject/pykube <https://github.com/kelproject/pykube>`_ which is no longer maintained (archived). Here the original text of the pykube README:
 
