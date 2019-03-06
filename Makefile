@@ -1,4 +1,4 @@
-.PHONY: test package upload
+.PHONY: test docs package upload
 
 VERSION          ?= $(shell git describe --tags --always --dirty)
 
@@ -11,6 +11,9 @@ test:
 	pipenv run flake8
 	pipenv run coverage run --source=pykube -m py.test
 	pipenv run coverage report
+
+docs:
+	pipenv run sphinx-build -M html docs docs/_build
 
 package: test
 	pipenv run python3 setup.py sdist bdist_wheel

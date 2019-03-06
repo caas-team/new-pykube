@@ -40,9 +40,11 @@ There is not much documentation yet, but you can check out the `README on github
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :glob:
 
+   howtos/index.rst
    readme
+   changelog
 
 
 
