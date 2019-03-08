@@ -54,6 +54,19 @@ To install pykube, use pip::
 
     pip install pykube-ng
 
+
+Interactive Console
+-------------------
+
+The ``pykube`` library module can be run as an interactive console locally for quick exploration.
+It will automatically load ``~/.kube/config`` to provide the ``api`` object, and it loads pykube classes (``Deployment``, ``Pod``, ..) into local context:
+
+.. code-block:: bash
+
+    python3 -m pykube
+    >>> [d.name for d in Deployment.objects(api)] 
+
+
 Usage
 -----
 
@@ -176,8 +189,8 @@ You can run pykube against your current kubeconfig context, e.g. local Minikube_
 
 .. code-block:: bash
 
-    $ pipenv install --dev
-    $ pipenv run python3
+    pipenv install --dev
+    pipenv run python3
     >>> import pykube
     >>> config = pykube.KubeConfig.from_file()
     >>> api = pykube.HTTPClient(config)
@@ -187,7 +200,7 @@ To run PEP8 (flake8) checks and unit tests including coverage report:
 
 .. code-block:: bash
 
-    $ make test
+    make test
 
 
 License
