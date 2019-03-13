@@ -1,8 +1,15 @@
+import argparse
 import code
 
 import pykube
 
-config = pykube.KubeConfig.from_file()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--kubeconfig', help='Path to the kubeconfig file to use')
+parser.add_argument('-c', help='Python program passed in as string')
+args = parser.parse_args()
+
+config = pykube.KubeConfig.from_file(args.kubeconfig)
 api = pykube.HTTPClient(config)
 
 context = {
@@ -25,4 +32,7 @@ Example commands:
 Use Ctrl-D to exit'''
 
 console = code.InteractiveConsole(locals=context)
-console.interact(banner)
+if args.c:
+    console.runsource(args.c)
+else:
+    console.interact(banner)
