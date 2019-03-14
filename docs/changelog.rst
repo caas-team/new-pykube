@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.19
+----
+
+* Added interactive console (invoke with ``python3 -m pykube``)
+
 0.18
 ----
 
