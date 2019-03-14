@@ -6,11 +6,16 @@ import pykube
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--kubeconfig', help='Path to the kubeconfig file to use')
-    parser.add_argument('-c', help='Python program passed in as string')
+    parser.add_argument('--kubeconfig', help='Path to the kubeconfig file to use', metavar='PATH')
+    parser.add_argument('--context', help='The name of the kubeconfig context to used', metavar='NAME')
+    parser.add_argument('-c', help='Python program passed in as string', metavar='SCRIPT')
     args = parser.parse_args(argv)
 
     config = pykube.KubeConfig.from_file(args.kubeconfig)
+
+    if args.context:
+        config.set_current_context(args.context)
+
     api = pykube.HTTPClient(config)
 
     context = {

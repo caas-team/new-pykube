@@ -19,6 +19,10 @@ class KubeConfig(object):
 
     @classmethod
     def from_service_account(cls, path="/var/run/secrets/kubernetes.io/serviceaccount", **kwargs):
+        '''
+        Construct KubeConfig from in-cluster service account.
+        '''
+
         with open(os.path.join(path, "token")) as fp:
             token = fp.read()
         host = os.environ.get("PYKUBE_KUBERNETES_SERVICE_HOST")
@@ -64,8 +68,7 @@ class KubeConfig(object):
         """
         Creates an instance of the KubeConfig class from a kubeconfig file.
 
-        :Parameters:
-           - `filename`: The full path to the configuration file
+        :param filename: The full path to the configuration file. Defaults to ~/.kube/config
         """
         if not filename:
             filename = os.getenv('KUBECONFIG', '~/.kube/config')
@@ -190,7 +193,7 @@ class KubeConfig(object):
         return self.users.get(self.contexts[self.current_context].get("user", ""), {})
 
     @property
-    def namespace(self):
+    def namespace(self) -> str:
         """
         Returns the current context namespace by exposing as a read-only property.
         """

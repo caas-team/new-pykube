@@ -23,6 +23,9 @@ class ObjectManager(object):
 
 
 class APIObject(object):
+    '''
+    Baseclass for all Kubernetes API objects
+    '''
 
     objects = ObjectManager()
     base = None
@@ -43,7 +46,14 @@ class APIObject(object):
         return self.name
 
     @property
-    def name(self):
+    def name(self) -> str:
+        '''
+        Name of the Kubernetes resource (metadata.name)
+
+        Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation
+        of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition.
+        Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names
+        '''
         return self.obj["metadata"]["name"]
 
     @property
@@ -51,11 +61,23 @@ class APIObject(object):
         return self.obj["metadata"]
 
     @property
-    def labels(self):
+    def labels(self) -> dict:
+        '''
+        Labels of the Kubernetes resource (metadata.labels)
+
+        Map of string keys and values that can be used to organize and categorize (scope and select) objects.
+        May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
+        '''
         return self.obj["metadata"].get("labels", {})
 
     @property
-    def annotations(self):
+    def annotations(self) -> dict:
+        '''
+        Annotations of the Kubernetes resource (metadata.annotations)
+
+        Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata.
+        They are not queryable and should be preserved when modifying objects. More info: http://kubernetes.io/docs/user-guide/annotations
+        '''
         return self.obj["metadata"].get("annotations", {})
 
     def api_kwargs(self, **kwargs):
@@ -109,6 +131,9 @@ class APIObject(object):
         }).watch()
 
     def update(self):
+        '''
+        Update the Kubernetes resource by calling the API (patch)
+        '''
         self.obj = obj_merge(self.obj, self._original_obj)
         r = self.api.patch(**self.api_kwargs(
             headers={"Content-Type": "application/merge-patch+json"},
@@ -126,7 +151,13 @@ class APIObject(object):
 class NamespacedAPIObject(APIObject):
 
     @property
-    def namespace(self):
+    def namespace(self) -> str:
+        '''
+        Namespace scope of the Kubernetes resource (metadata.namespace)
+
+        Namespace defines the space within each name must be unique.
+        Cannot be updated. More info: http://kubernetes.io/docs/user-guide/namespaces
+        '''
         if self.obj["metadata"].get("namespace"):
             return self.obj["metadata"]["namespace"]
         else:

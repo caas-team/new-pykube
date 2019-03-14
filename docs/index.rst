@@ -42,8 +42,9 @@ There is not much documentation yet, but you can check out the `README on github
    :maxdepth: 2
    :glob:
 
-   howtos/index.rst
-   readme
+   howtos/index
+   api/modules
+   README <readme>
    changelog
    users
 

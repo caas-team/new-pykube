@@ -1,3 +1,4 @@
 # duplicate necessary dependencies to import pykube module (for autodoc)
 requests
 PyYAML
+sphinx-autodoc-annotation

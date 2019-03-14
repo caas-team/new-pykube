@@ -5,7 +5,7 @@ VERSION          ?= $(shell git describe --tags --always --dirty)
 default: package
 
 clean:
-	rm -fr build dist *egg-info .tox/ .cache/ .pytest_cache/
+	rm -fr build dist *egg-info .tox/ .cache/ .pytest_cache/ docs/_build/
 
 test:
 	pipenv run flake8
