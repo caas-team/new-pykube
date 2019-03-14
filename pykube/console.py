@@ -3,6 +3,12 @@ import code
 
 import pykube
 
+# import readline to support line editing within console session.
+try:
+    import readline  # noqa
+except ImportError:
+    pass
+
 
 def main(argv=None):
     '''

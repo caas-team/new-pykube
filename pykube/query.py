@@ -25,6 +25,12 @@ class BaseQuery(object):
         return self._clone()
 
     def filter(self, namespace=None, selector=None, field_selector=None):
+        '''
+        Filter objects by namespace, labels, or fields
+
+        :param namespace: Namespace to filter by (pass pykube.all to get objects in all namespaces)
+        :param selector: Label selector, can be a dictionary of label names/values
+        '''
         clone = self._clone()
         if namespace is not None:
             clone.namespace = namespace
@@ -56,6 +62,9 @@ class BaseQuery(object):
 class Query(BaseQuery):
 
     def get_by_name(self, name):
+        '''
+        Get object by name, raises ObjectDoesNotExist if not found
+        '''
         kwargs = {
             "url": "{}/{}".format(self.api_obj_class.endpoint, name),
             "namespace": self.namespace,
@@ -83,6 +92,9 @@ class Query(BaseQuery):
         raise ValueError("get() more than one object; use filter")
 
     def get_or_none(self, *args, **kwargs):
+        '''
+        Get object by name, return None if not found
+        '''
         try:
             return self.get(*args, **kwargs)
         except ObjectDoesNotExist:
