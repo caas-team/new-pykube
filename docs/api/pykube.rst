@@ -1,5 +1,3 @@
-.. _pykube-package:
-
 pykube package
 ==============
 
@@ -10,6 +8,14 @@ pykube.config module
 --------------------
 
 .. automodule:: pykube.config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pykube.console module
+---------------------
+
+.. automodule:: pykube.console
     :members:
     :undoc-members:
     :show-inheritance:

@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-"pykube-ng" = {path = ".", editable = true}
+pykube-ng = {path = ".",editable = true}
 
 [dev-packages]
 "flake8" = "*"
@@ -16,6 +16,7 @@ twine = "*"
 responses = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
+sphinx-autodoc-annotation = "*"
 
 [requires]
 python_version = "3.7"
