@@ -81,6 +81,9 @@ class Query(BaseQuery):
         return self.api_obj_class(self.api, r.json())
 
     def get(self, *args, **kwargs):
+        '''
+        Get a single object by name, namespace, label, ..
+        '''
         if "name" in kwargs:
             return self.get_by_name(kwargs["name"])
         clone = self.filter(*args, **kwargs)
