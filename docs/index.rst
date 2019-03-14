@@ -45,6 +45,7 @@ There is not much documentation yet, but you can check out the `README on github
    howtos/index.rst
    readme
    changelog
+   users
 
 
 
