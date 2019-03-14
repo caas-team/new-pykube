@@ -10,6 +10,7 @@ clean:
 test:
 	pipenv run flake8
 	pipenv run coverage run --source=pykube -m py.test
+	pipenv run coverage html
 	pipenv run coverage report
 
 apidocs:

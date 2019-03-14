@@ -4,7 +4,7 @@ import pytest
 import responses
 
 import pykube
-from pykube import KubeConfig, HTTPClient, Deployment
+from pykube import KubeConfig, HTTPClient, Deployment, ObjectDoesNotExist
 
 
 @pytest.fixture
@@ -191,3 +191,57 @@ def test_list_and_update_deployments(api, requests_mock):
         assert len(rsps.calls) == 2
 
         assert json.loads(rsps.calls[-1].request.body) == {"metadata": {"name": "deploy-1"}, "spec": {"replicas": 2}}
+
+
+def test_pod_exists(api, requests_mock):
+    with requests_mock as rsps:
+        obj = {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "name": "my-pod"
+            },
+            "spec": {
+                "containers": []
+            }
+        }
+        pod = pykube.Pod(api, obj)
+
+        rsps.add(responses.GET, 'https://localhost:9443/api/v1/namespaces/default/pods/my-pod',
+                 status=404)
+        assert not pod.exists()
+
+        with pytest.raises(ObjectDoesNotExist):
+            pod.exists(ensure=True)
+
+        rsps.replace(responses.GET, 'https://localhost:9443/api/v1/namespaces/default/pods/my-pod',
+                     json={})
+        assert pod.exists()
+
+
+def test_reload(api, requests_mock):
+    with requests_mock as rsps:
+        rsps.add(responses.GET, 'https://localhost:9443/api/v1/namespaces/default/pods/my-pod',
+                 json={'metadata': {'name': 'my-pod', 'labels': {'a': 'foo'}}})
+        pod = pykube.Pod.objects(api).get_by_name('my-pod')
+        assert pod.labels['a'] == 'foo'
+
+        rsps.replace(responses.GET, 'https://localhost:9443/api/v1/namespaces/default/pods/my-pod',
+                     json={'metadata': {'name': 'my-pod', 'labels': {'a': 'bar'}}})
+        pod.reload()
+        assert pod.labels['a'] == 'bar'
+
+
+def test_resource_list(api, requests_mock):
+    with requests_mock as rsps:
+        data1 = {'resources': [{'kind': 'Pod', 'name': 'pods'}]}
+        rsps.add(responses.GET, 'https://localhost:9443/api/v1/',
+                 json=data1)
+        resource_list = api.resource_list('v1')
+        assert resource_list == data1
+
+        data2 = {'resources': [{'kind': 'ExampleObject', 'name': 'exampleobjects'}]}
+        rsps.add(responses.GET, 'https://localhost:9443/apis/example.org/v1/',
+                 json=data2)
+        resource_list = api.resource_list('example.org/v1')
+        assert resource_list == data2

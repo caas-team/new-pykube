@@ -1,0 +1,17 @@
+current-context: thecluster
+clusters:
+    - name: thecluster
+      cluster: 
+        insecure-skip-tls-verify: true
+users:
+    - name: admin
+      user:
+        username: adm
+        password: somepassword
+contexts:
+    - name: thecluster
+      context:
+        cluster: thecluster
+        user: admin
+    - name: second
+      context: secondcontext

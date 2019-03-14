@@ -145,7 +145,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
         return response
 
 
-class HTTPClient(object):
+class HTTPClient:
     """
     Client for interfacing with the Kubernetes API.
     """
@@ -187,7 +187,7 @@ class HTTPClient(object):
         return (data["major"], data["minor"])
 
     def resource_list(self, api_version):
-        cached_attr = "_cached_resource_list"
+        cached_attr = f'_cached_resource_list_{api_version}'
         if not hasattr(self, cached_attr):
             r = self.get(version=api_version)
             r.raise_for_status()

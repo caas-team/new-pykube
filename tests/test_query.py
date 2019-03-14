@@ -17,6 +17,22 @@ def test_get(api):
         Query(api, Pod).get(namespace='myns')
 
 
+def test_get_one_object(api):
+    response = MagicMock()
+    response.json.return_value = {'items': [{'metadata': {'name': 'pod1'}}]}
+    api.get.return_value = response
+    pod = Query(api, Pod).get(namespace='myns')
+    assert pod.name == 'pod1'
+
+
+def test_get_more_than_one_object(api):
+    response = MagicMock()
+    response.json.return_value = {'items': [{'metadata': {'name': 'pod1'}}, {'metadata': {'name': 'pod2'}}]}
+    api.get.return_value = response
+    with pytest.raises(ValueError):
+        Query(api, Pod).get(namespace='myns')
+
+
 def test_filter_by_namespace(api):
     Query(api, Pod).filter(namespace='myns').execute()
     api.get.assert_called_once_with(namespace='myns', url='pods', version='v1')
@@ -40,3 +56,13 @@ def test_filter_by_labels_in(api):
 def test_filter_by_labels_notin(api):
     Query(api, Pod).filter(selector={'application__notin': ['foo', 'bar']}).execute()
     api.get.assert_called_once_with(url='pods?labelSelector=application+notin+%28bar%2Cfoo%29', version='v1')
+
+
+def test_filter_invalid_selector(api):
+    with pytest.raises(ValueError):
+        Query(api, Pod).filter(selector={'application__x': 'foo'}).execute()
+
+
+def test_filter_selector_string(api):
+    Query(api, Pod).filter(selector='application=foo').execute()
+    api.get.assert_called_once_with(url='pods?labelSelector=application%3Dfoo', version='v1')

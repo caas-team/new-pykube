@@ -10,7 +10,7 @@ from .query import Query
 from .utils import obj_merge
 
 
-class ObjectManager(object):
+class ObjectManager:
     def __call__(self, api, namespace=None):
         if namespace is None and NamespacedAPIObject in getmro(self.api_obj_class):
             namespace = api.config.namespace
@@ -22,7 +22,7 @@ class ObjectManager(object):
         return self
 
 
-class APIObject(object):
+class APIObject:
     '''
     Baseclass for all Kubernetes API objects
     '''
@@ -180,6 +180,7 @@ def object_factory(api, api_version, kind):
     It is planned to fix this, but in the mean time pass it as you would normally.
     """
     resource_list = api.resource_list(api_version)
+    print(resource_list)
     resource = next((resource for resource in resource_list["resources"] if resource["kind"] == kind), None)
     base = NamespacedAPIObject if resource["namespaced"] else APIObject
     return type(kind, (base,), {

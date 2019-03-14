@@ -12,7 +12,7 @@ everything = object()
 now = object()
 
 
-class BaseQuery(object):
+class BaseQuery:
 
     def __init__(self, api, api_obj_class, namespace=None):
         self.api = api

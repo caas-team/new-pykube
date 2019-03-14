@@ -12,7 +12,7 @@ import yaml
 from pykube import exceptions
 
 
-class KubeConfig(object):
+class KubeConfig:
     """
     Main configuration class.
     """
@@ -216,7 +216,7 @@ class KubeConfig(object):
             delattr(self, "_clusters")
 
 
-class BytesOrFile(object):
+class BytesOrFile:
     """
     Implements the same interface for files and byte input.
     """

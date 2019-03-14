@@ -1,7 +1,7 @@
 import time
 
 
-class ReplicatedMixin(object):
+class ReplicatedMixin:
 
     scalable_attr = "replicas"
 
@@ -14,7 +14,7 @@ class ReplicatedMixin(object):
         self.obj["spec"]["replicas"] = value
 
 
-class ScalableMixin(object):
+class ScalableMixin:
 
     @property
     def scalable(self):
