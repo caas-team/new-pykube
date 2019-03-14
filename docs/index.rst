@@ -36,8 +36,6 @@ Query for all ready pods in a custom namespace:
 Documentation
 -------------
 
-There is not much documentation yet, but you can check out the `README on github <https://github.com/hjacobs/pykube>`_ and browse the :ref:`pykube-package`.
-
 .. toctree::
    :maxdepth: 2
    :glob:

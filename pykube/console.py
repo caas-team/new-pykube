@@ -5,6 +5,9 @@ import pykube
 
 
 def main(argv=None):
+    '''
+    Run the interactive Pykube console (usually invoked via python3 -m pykube)
+    '''
     parser = argparse.ArgumentParser()
     parser.add_argument('--kubeconfig', help='Path to the kubeconfig file to use', metavar='PATH')
     parser.add_argument('--context', help='The name of the kubeconfig context to used', metavar='NAME')
