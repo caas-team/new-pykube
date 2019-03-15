@@ -22,3 +22,15 @@ def test_object_factory():
     assert ExampleObject.endpoint == 'exampleobjects'
     assert ExampleObject.version == 'example.org/v1'
     assert NamespacedAPIObject in ExampleObject.mro()
+
+
+def test_set_annotation():
+    pod = Pod(None, {'metadata': {'name': 'myname'}})
+    pod.annotations['foo'] = 'bar'
+    assert pod.annotations['foo'] == 'bar'
+
+
+def test_set_label():
+    pod = Pod(None, {'metadata': {'name': 'myname'}})
+    pod.labels['foo'] = 'bar'
+    assert pod.labels['foo'] == 'bar'

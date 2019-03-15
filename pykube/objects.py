@@ -68,7 +68,7 @@ class APIObject:
         Map of string keys and values that can be used to organize and categorize (scope and select) objects.
         May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
         '''
-        return self.obj["metadata"].get("labels", {})
+        return self.obj["metadata"].setdefault("labels", {})
 
     @property
     def annotations(self) -> dict:
@@ -78,7 +78,7 @@ class APIObject:
         Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata.
         They are not queryable and should be preserved when modifying objects. More info: http://kubernetes.io/docs/user-guide/annotations
         '''
-        return self.obj["metadata"].get("annotations", {})
+        return self.obj["metadata"].setdefault("annotations", {})
 
     def api_kwargs(self, **kwargs):
         kw = {}
