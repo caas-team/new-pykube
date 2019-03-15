@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.20
+----
+
+* Fix handling of annotations and labels if the object had none set before
+
 0.19
 ----
 
