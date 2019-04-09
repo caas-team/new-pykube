@@ -142,8 +142,12 @@ class APIObject:
         self.api.raise_for_status(r)
         self.set_obj(r.json())
 
-    def delete(self):
-        r = self.api.delete(**self.api_kwargs())
+    def delete(self, propagation_policy=None):
+        if propagation_policy:
+            options = {"propagationPolicy": propagation_policy}
+        else:
+            options = {}
+        r = self.api.delete(**self.api_kwargs(data=json.dumps(options)))
         if r.status_code != 404:
             self.api.raise_for_status(r)
 
