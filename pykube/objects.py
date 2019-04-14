@@ -142,7 +142,13 @@ class APIObject:
         self.api.raise_for_status(r)
         self.set_obj(r.json())
 
-    def delete(self, propagation_policy=None):
+    def delete(self, propagation_policy: str = None):
+        '''
+        Delete the Kubernetes resource by calling the API.
+
+        The parameter propagation_policy defines whether to cascade the delete. It can be "Foreground", "Background" or "Orphan".
+        See https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/#setting-the-cascading-deletion-policy
+        '''
         if propagation_policy:
             options = {"propagationPolicy": propagation_policy}
         else:
