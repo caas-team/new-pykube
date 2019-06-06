@@ -52,7 +52,9 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
     def _auth_gcp(self, request, token, expiry, config):
         original_request = request.copy()
 
-        credentials = google.auth.default()[0]
+        credentials = google.auth.default(
+            scopes=['https://www.googleapis.com/auth/cloud-platform', 'https://www.googleapis.com/auth/userinfo.email']
+        )[0]
         credentials.token = token
         credentials.expiry = expiry
 
@@ -94,7 +96,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
                     jsonpath_installed,
                 ]
                 if not all(dependencies):
-                    raise ImportError("missing dependencies for GCP support (try pip install pykube[gcp]")
+                    raise ImportError("missing dependencies for GCP support (try pip install pykube-ng[gcp]")
                 auth_config = auth_provider.get("config", {})
                 if "cmd-path" in auth_config:
                     output = subprocess.check_output(
