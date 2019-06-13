@@ -190,7 +190,6 @@ def object_factory(api, api_version, kind):
     It is planned to fix this, but in the mean time pass it as you would normally.
     """
     resource_list = api.resource_list(api_version)
-    print(resource_list)
     resource = next((resource for resource in resource_list["resources"] if resource["kind"] == kind), None)
     base = NamespacedAPIObject if resource["namespaced"] else APIObject
     return type(kind, (base,), {
