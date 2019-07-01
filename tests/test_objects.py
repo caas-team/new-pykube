@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock
 
-import pykube
+import pytest
 
+import pykube
 from pykube.objects import Pod, NamespacedAPIObject
 
 
@@ -14,7 +15,7 @@ def test_api_object():
     assert pod.annotations == {}
 
 
-def test_object_factory():
+def test_object_factory_succeeds():
     api = MagicMock()
     api.resource_list.return_value = {'resources': [{'kind': 'ExampleObject', 'namespaced': True, 'name': 'exampleobjects'}]}
     ExampleObject = pykube.object_factory(api, 'example.org/v1', 'ExampleObject')
@@ -22,6 +23,13 @@ def test_object_factory():
     assert ExampleObject.endpoint == 'exampleobjects'
     assert ExampleObject.version == 'example.org/v1'
     assert NamespacedAPIObject in ExampleObject.mro()
+
+
+def test_object_factory_raises_for_unknown_kind():
+    api = MagicMock()
+    api.resource_list.return_value = {'resources': [{'kind': 'ExampleObject', 'namespaced': True, 'name': 'exampleobjects'}]}
+    with pytest.raises(ValueError):
+        pykube.object_factory(api, 'example.org/v1', 'OtherObject')
 
 
 def test_set_annotation():

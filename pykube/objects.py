@@ -2,6 +2,7 @@ import copy
 import json
 import os.path as op
 from inspect import getmro
+from typing import Type
 
 from urllib.parse import urlencode
 from .exceptions import ObjectDoesNotExist
@@ -174,7 +175,7 @@ class NamespacedAPIObject(APIObject):
             return self.api.config.namespace
 
 
-def object_factory(api, api_version, kind):
+def object_factory(api, api_version, kind) -> Type[APIObject]:
     """
     Dynamically builds a Python class for the given Kubernetes object in an API.
 
@@ -190,7 +191,10 @@ def object_factory(api, api_version, kind):
     It is planned to fix this, but in the mean time pass it as you would normally.
     """
     resource_list = api.resource_list(api_version)
-    resource = next((resource for resource in resource_list["resources"] if resource["kind"] == kind), None)
+    try:
+        resource = next(resource for resource in resource_list["resources"] if resource["kind"] == kind)
+    except StopIteration:
+        raise ValueError("unknown resource kind {!r}".format(kind)) from None
     base = NamespacedAPIObject if resource["namespaced"] else APIObject
     return type(kind, (base,), {
         "version": api_version,

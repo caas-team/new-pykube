@@ -68,12 +68,22 @@ users:
     return kubeconfig
 
 
-def test_from_default_kubeconfig(monkeypatch, kubeconfig):
+@pytest.mark.parametrize("kubeconfig_env,expected_path", [
+    (None, '~/.kube/config'),
+    ('/some/path', '/some/path')
+])
+def test_from_default_kubeconfig(kubeconfig_env, expected_path, monkeypatch, kubeconfig):
     mock = MagicMock()
     mock.return_value = str(kubeconfig)
     monkeypatch.setattr('os.path.expanduser', mock)
+
+    if kubeconfig_env is None:
+        monkeypatch.delenv('KUBECONFIG', raising=False)
+    else:
+        monkeypatch.setenv('KUBECONFIG', kubeconfig_env)
+
     cfg = config.KubeConfig.from_file()
-    mock.assert_called_with('~/.kube/config')
+    mock.assert_called_with(expected_path)
     assert cfg.doc['clusters'][0]['cluster'] == {'server': 'https://localhost:9443'}
 
 
