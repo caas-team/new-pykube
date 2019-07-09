@@ -131,17 +131,23 @@ class APIObject:
             "metadata.name": self.name
         }).watch()
 
+    def patch(self, strategic_merge_patch):
+        '''
+        Patch the Kubernetes resource by calling the API with a "strategic merge" patch.
+        '''
+        r = self.api.patch(**self.api_kwargs(
+            headers={"Content-Type": "application/merge-patch+json"},
+            data=json.dumps(strategic_merge_patch),
+        ))
+        self.api.raise_for_status(r)
+        self.set_obj(r.json())
+
     def update(self):
         '''
         Update the Kubernetes resource by calling the API (patch)
         '''
         self.obj = obj_merge(self.obj, self._original_obj)
-        r = self.api.patch(**self.api_kwargs(
-            headers={"Content-Type": "application/merge-patch+json"},
-            data=json.dumps(self.obj),
-        ))
-        self.api.raise_for_status(r)
-        self.set_obj(r.json())
+        self.patch(self.obj)
 
     def delete(self, propagation_policy: str = None):
         '''
@@ -516,3 +522,10 @@ class PodDisruptionBudget(APIObject):
     version = "policy/v1beta1"
     endpoint = "poddisruptionbudgets"
     kind = "PodDisruptionBudget"
+
+
+class CustomResourceDefinition(APIObject):
+
+    version = "apiextensions.k8s.io/v1beta1"
+    endpoint = "customresourcedefinitions"
+    kind = "CustomResourceDefinition"
