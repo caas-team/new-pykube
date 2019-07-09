@@ -11,6 +11,7 @@ from .objects import (  # noqa
     object_factory,
     ConfigMap,
     CronJob,
+    CustomResourceDefinition,
     DaemonSet,
     Deployment,
     Endpoint,
