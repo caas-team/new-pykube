@@ -47,7 +47,7 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
     ],
     zip_safe=False,
-    packages=find_packages(),
+    packages=find_packages(exclude=("tests",)),
     install_requires=install_requires,
     extras_require={
         "gcp": [
