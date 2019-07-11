@@ -157,6 +157,7 @@ class WatchQuery(BaseQuery):
     def __init__(self, *args, **kwargs):
         self.resource_version = kwargs.pop("resource_version", None)
         super(WatchQuery, self).__init__(*args, **kwargs)
+        self._response = None
 
     def object_stream(self):
         params = {"watch": "true"}
@@ -172,6 +173,7 @@ class WatchQuery(BaseQuery):
             kwargs["version"] = self.api_obj_class.version
         r = self.api.get(**kwargs)
         self.api.raise_for_status(r)
+        self._response = r
         WatchEvent = namedtuple("WatchEvent", "type object")
         for line in r.iter_lines():
             we = json.loads(line.decode("utf-8"))
@@ -179,6 +181,10 @@ class WatchQuery(BaseQuery):
 
     def __iter__(self):
         return iter(self.object_stream())
+
+    @property
+    def response(self):
+        return self._response
 
 
 def as_selector(value):
