@@ -103,8 +103,9 @@ class Query(BaseQuery):
         except ObjectDoesNotExist:
             return None
 
-    def watch(self, since=None):
+    def watch(self, since=None, *, params=None):
         query = self._clone(WatchQuery)
+        query.params = params
         if since is now:
             query.resource_version = self.response["metadata"]["resourceVersion"]
         elif since is not None:
@@ -156,11 +157,13 @@ class WatchQuery(BaseQuery):
 
     def __init__(self, *args, **kwargs):
         self.resource_version = kwargs.pop("resource_version", None)
+        self.params = None
         super(WatchQuery, self).__init__(*args, **kwargs)
         self._response = None
 
     def object_stream(self):
-        params = {"watch": "true"}
+        params = dict(self.params or {})  # shallow clone for local use
+        params["watch"] = "true"
         if self.resource_version is not None:
             params["resourceVersion"] = self.resource_version
         kwargs = {
