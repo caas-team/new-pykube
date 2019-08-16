@@ -86,7 +86,11 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
 
         # setup cluster API authentication
 
-        if "token" in config.user and config.user["token"]:
+        if "Authorization" in request.headers:
+            # request already has some auth header (e.g. Bearer token)
+            # don't modify/overwrite it
+            pass
+        elif "token" in config.user and config.user["token"]:
             request.headers["Authorization"] = "Bearer {}".format(config.user["token"])
         elif "auth-provider" in config.user:
             auth_provider = config.user["auth-provider"]
