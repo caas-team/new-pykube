@@ -47,3 +47,18 @@ def test_http_insecure_skip_tls_verify(monkeypatch):
     mock_send.assert_called_once()
     # check that SSL is not verified
     assert not mock_send.call_args[1]['verify']
+
+
+def test_http_do_not_overwrite_auth(monkeypatch):
+    cfg = KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
+    api = HTTPClient(cfg)
+
+    mock_send = MagicMock()
+    mock_send.side_effect = Exception('MOCK HTTP')
+    monkeypatch.setattr('pykube.http.KubernetesHTTPAdapter._do_send', mock_send)
+
+    with pytest.raises(Exception):
+        api.get(url='test', headers={'Authorization': 'Bearer testtoken'})
+
+    mock_send.assert_called_once()
+    assert mock_send.call_args[0][0].headers['Authorization'] == 'Bearer testtoken'
