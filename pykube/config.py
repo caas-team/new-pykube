@@ -82,6 +82,21 @@ class KubeConfig:
         return self
 
     @classmethod
+    def from_env(cls):
+        """
+        Convenience function to create an instance of KubeConfig from the current environment.
+
+        First tries to use in-cluster ServiceAccount, then tries default ~/.kube/config (or KUBECONFIG)
+        """
+        try:
+            # running in cluster
+            config = cls.from_service_account()
+        except FileNotFoundError:
+            # not running in cluster => load local ~/.kube/config
+            config = cls.from_file()
+        return config
+
+    @classmethod
     def from_url(cls, url, **kwargs):
         """
         Creates an instance of the KubeConfig class from a single URL (useful
