@@ -1,6 +1,12 @@
 Changelog
 =========
 
+19.9.0
+------
+
+* changed to `Calendar Versioning <http://calver.org>`_
+* add convenience function ``KubeConfig.from_env()`` to load KubeConfig from in-cluster ServiceAccount or local KUBECONFIG
+
 0.30
 ----
 

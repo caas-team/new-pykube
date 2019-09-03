@@ -8,22 +8,26 @@ pykube-ng
 .. image:: https://coveralls.io/repos/github/hjacobs/pykube/badge.svg?branch=master;_=1
    :target: https://coveralls.io/github/hjacobs/pykube?branch=master
    :alt: Code Coverage
-   
+
 .. image:: https://readthedocs.org/projects/pykube/badge/?version=latest
    :target: https://pykube.readthedocs.io/
    :alt: Documentation
 
 .. image:: https://img.shields.io/pypi/v/pykube-ng.svg
-   :target:  https://pypi.python.org/pypi/pykube-ng/
+   :target: https://pypi.python.org/pypi/pykube-ng/
    :alt: PyPI version
 
 .. image:: https://img.shields.io/pypi/pyversions/pykube-ng.svg
-   :target:  https://pypi.python.org/pypi/pykube-ng/
+   :target: https://pypi.python.org/pypi/pykube-ng/
    :alt: Python versions
 
 .. image:: https://img.shields.io/badge/license-apache-blue.svg
-   :target:  https://pypi.python.org/pypi/pykube-ng/
+   :target: https://pypi.python.org/pypi/pykube-ng/
    :alt: Apache License
+
+.. image:: https://img.shields.io/badge/calver-YY.MM.MICRO-22bfda.svg
+   :target: http://calver.org/
+   :alt: CalVer
 
 Pykube (pykube-ng) is a lightweight Python 3.6+ client library for Kubernetes.
 
@@ -64,7 +68,7 @@ It will automatically load ``~/.kube/config`` to provide the ``api`` object, and
 .. code-block:: bash
 
     python3 -m pykube
-    >>> [d.name for d in Deployment.objects(api)] 
+    >>> [d.name for d in Deployment.objects(api)]
 
 
 Usage
