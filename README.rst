@@ -81,7 +81,7 @@ Query for all ready pods in a custom namespace:
     import operator
     import pykube
 
-    api = pykube.HTTPClient(pykube.KubeConfig.from_file("~/.kube/config"))
+    api = pykube.HTTPClient(pykube.KubeConfig.from_file())
     pods = pykube.Pod.objects(api).filter(namespace="gondor-system")
     ready_pods = filter(operator.attrgetter("ready"), pods)
 

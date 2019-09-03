@@ -9,12 +9,8 @@ Pykube can be used to implement Kubernetes Operators. Here is how to write a ver
     import pykube, time
 
     while True:
-        try:
-            # running in cluster
-            config = pykube.KubeConfig.from_service_account()
-        except FileNotFoundError:
-            # not running in cluster => load local ~/.kube/config for testing
-            config = pykube.KubeConfig.from_file()
+        # loads in-cluster auth or local ~/.kube/config for testing
+        config = pykube.KubeConfig.from_env()
         api = pykube.HTTPClient(config)
         for deploy in pykube.Deployment.objects(api, namespace=pykube.all):
             if 'pykube-test-operator' in deploy.annotations:
@@ -51,7 +47,7 @@ Create a ``Dockerfile`` in the same directory as ``main.py``:
 
 .. code-block:: Dockerfile
 
-    FROM python:3.7-alpine3.9
+    FROM python:3.7-alpine3.10
 
     WORKDIR /
 
