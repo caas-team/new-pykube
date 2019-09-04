@@ -120,7 +120,11 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
                         auth_config.get("expiry"),
                         config,
                     )
-            # @@@ support oidc
+            elif auth_provider.get("name") == "oidc":
+                auth_config = auth_provider.get("config", {})
+                # @@@ support token refresh
+                if "id-token" in auth_config:
+                    request.headers["Authorization"] = "Bearer {}".format(auth_config["id-token"])
         elif "client-certificate" in config.user:
             kwargs["cert"] = (
                 config.user["client-certificate"].filename(),

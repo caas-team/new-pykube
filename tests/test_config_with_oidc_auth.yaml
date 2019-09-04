@@ -1,0 +1,23 @@
+# TODO: Replace with a more realistic example
+current-context: thecluster
+clusters:
+    - name: thecluster
+      cluster: {}
+users:
+    - name: admin
+      user:
+        auth-provider:
+          config:
+            client-id: google
+            client-secret: s3cr3t
+            id-token: some-id-token
+            idp-issuer-url: https://accounts.google.com
+            refresh-token: some-refresh-token
+          name: oidc
+contexts:
+    - name: thecluster
+      context:
+        cluster: thecluster
+        user: admin
+    - name: second
+      context: secondcontext

@@ -13,6 +13,7 @@ from pykube.config import KubeConfig
 
 GOOD_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config_with_context.yaml"])
 CONFIG_WITH_INSECURE_SKIP_TLS_VERIFY = os.path.sep.join(["tests", "test_config_with_insecure_skip_tls_verify.yaml"])
+CONFIG_WITH_OIDC_AUTH = os.path.sep.join(["tests", "test_config_with_oidc_auth.yaml"])
 
 
 def test_http(monkeypatch):
@@ -62,3 +63,18 @@ def test_http_do_not_overwrite_auth(monkeypatch):
 
     mock_send.assert_called_once()
     assert mock_send.call_args[0][0].headers['Authorization'] == 'Bearer testtoken'
+
+
+def test_http_with_oidc_auth(monkeypatch):
+    cfg = KubeConfig.from_file(CONFIG_WITH_OIDC_AUTH)
+    api = HTTPClient(cfg)
+
+    mock_send = MagicMock()
+    mock_send.side_effect = Exception('MOCK HTTP')
+    monkeypatch.setattr('pykube.http.KubernetesHTTPAdapter._do_send', mock_send)
+
+    with pytest.raises(Exception):
+        api.get(url='test')
+
+    mock_send.assert_called_once()
+    assert mock_send.call_args[0][0].headers['Authorization'] == 'Bearer some-id-token'
