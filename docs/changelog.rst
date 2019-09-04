@@ -1,6 +1,11 @@
 Changelog
 =========
 
+19.9.1
+------
+
+* support "oidc" auth type in KubeConfig (basic support with existing "id-token")
+
 19.9.0
 ------
 
