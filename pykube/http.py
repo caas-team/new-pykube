@@ -160,7 +160,7 @@ class HTTPClient:
     Client for interfacing with the Kubernetes API.
     """
 
-    def __init__(self, config: KubeConfig, timeout: float = DEFAULT_HTTP_TIMEOUT):
+    def __init__(self, config: KubeConfig, timeout: float = DEFAULT_HTTP_TIMEOUT, dry_run: bool = False):
         """
         Creates a new instance of the HTTPClient.
 
@@ -170,6 +170,7 @@ class HTTPClient:
         self.config = config
         self.timeout = timeout
         self.url = self.config.cluster["server"]
+        self.dry_run = dry_run
 
         session = requests.Session()
         session.headers['User-Agent'] = f'pykube-ng/{__version__}'
@@ -242,6 +243,11 @@ class HTTPClient:
         if 'timeout' not in kwargs:
             # apply default HTTP timeout
             kwargs['timeout'] = self.timeout
+        if self.dry_run:
+            # Add http query param for dryRun
+            params = kwargs.get('params', {})
+            params['dryRun'] = 'All'
+            kwargs['params'] = params
         return kwargs
 
     def raise_for_status(self, resp):

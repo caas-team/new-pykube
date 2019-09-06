@@ -34,6 +34,22 @@ def test_http(monkeypatch):
     assert mock_send.call_args[1]['timeout'] == DEFAULT_HTTP_TIMEOUT
 
 
+def test_http_with_dry_run(monkeypatch):
+    cfg = KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
+    api = HTTPClient(cfg, dry_run=True)
+
+    mock_send = MagicMock()
+    mock_send.side_effect = Exception('MOCK HTTP')
+    monkeypatch.setattr('pykube.http.KubernetesHTTPAdapter._do_send', mock_send)
+
+    with pytest.raises(Exception):
+        api.get(url='test')
+
+    mock_send.assert_called_once()
+    # check that dry run http parameters were set
+    assert mock_send.call_args[0][0].url == "http://localhost/api/v1/test?dryRun=All"
+
+
 def test_http_insecure_skip_tls_verify(monkeypatch):
     cfg = KubeConfig.from_file(CONFIG_WITH_INSECURE_SKIP_TLS_VERIFY)
     api = HTTPClient(cfg)
