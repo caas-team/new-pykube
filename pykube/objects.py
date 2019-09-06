@@ -517,7 +517,7 @@ class PodSecurityPolicy(APIObject):
     kind = "PodSecurityPolicy"
 
 
-class PodDisruptionBudget(APIObject):
+class PodDisruptionBudget(NamespacedAPIObject):
 
     version = "policy/v1beta1"
     endpoint = "poddisruptionbudgets"
