@@ -1,6 +1,11 @@
 Changelog
 =========
 
+19.9.2
+------
+
+* add ``dry_run`` option to ``HTTPClient`` to only make `dry run requests <https://kubernetes.io/blog/2019/01/14/apiserver-dry-run-and-kubectl-diff/>`_
+
 19.9.1
 ------
 
