@@ -125,13 +125,14 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
                 # @@@ support token refresh
                 if "id-token" in auth_config:
                     request.headers["Authorization"] = "Bearer {}".format(auth_config["id-token"])
-        elif "client-certificate" in config.user:
+        elif config.user.get("username") and config.user.get("password"):
+            request.prepare_auth((config.user["username"], config.user["password"]))
+
+        if "client-certificate" in config.user:
             kwargs["cert"] = (
                 config.user["client-certificate"].filename(),
                 config.user["client-key"].filename(),
             )
-        elif config.user.get("username") and config.user.get("password"):
-            request.prepare_auth((config.user["username"], config.user["password"]))
 
         # setup certificate verification
 
