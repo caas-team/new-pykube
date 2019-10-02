@@ -1,6 +1,11 @@
 Changelog
 =========
 
+19.10.0
+-------
+
+* use both ``token`` and ``client-certificate`` from Kubeconfig if defined (to support Azure Kubernetes)
+
 19.9.2
 ------
 
