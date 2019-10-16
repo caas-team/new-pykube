@@ -12,39 +12,45 @@ from itertools import zip_longest
 empty = object()
 
 
-def obj_merge(a, b):
+def obj_merge(obj, original_obj, is_strategic=True):
     c = {}
-    for k, v in a.items():
-        if k not in b:
+    for k, v in obj.items():
+        if k not in original_obj:
             c[k] = v
         else:
-            c[k] = obj_check(v, b[k])
-    for k, v in b.items():
-        if k not in a:
-            c[k] = v
+            c[k] = obj_check(v, original_obj[k], is_strategic)
+
+    if is_strategic is True:
+        for k, v in original_obj.items():
+            if k not in obj:
+                c[k] = v
     return c
 
 
-def obj_check(a, b):
-    c = None
-    if not isinstance(a, type(b)):
-        c = a
+def obj_check(obj_value, original_obj_value, is_strategic=True):
+    check_result = None
+    if not isinstance(obj_value, type(original_obj_value)):
+        check_result = obj_value
     else:
-        if isinstance(a, dict):
-            c = obj_merge(a, b)
-        elif isinstance(a, list):
-            z = []
-            for x, y in zip_longest(a, b, fillvalue=empty):
-                if x is empty:
-                    z.append(y)
-                elif y is empty:
-                    z.append(x)
-                else:
-                    z.append(obj_check(x, y))
-            c = z
+        if isinstance(obj_value, dict):
+            check_result = obj_merge(obj_value, original_obj_value, is_strategic)
+
+        elif isinstance(obj_value, list):
+            if is_strategic:
+                res_list = []
+                for x, y in zip_longest(obj_value, original_obj_value, fillvalue=empty):
+                    if x is empty:
+                        res_list.append(y)
+                    elif y is empty:
+                        res_list.append(x)
+                    else:
+                        res_list.append(obj_check(x, y, is_strategic))
+                check_result = res_list
+            else:
+                check_result = obj_value
         else:
-            c = a
-    return c
+            check_result = obj_value
+    return check_result
 
 
 def jsonpath_parse(template, obj):

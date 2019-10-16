@@ -142,11 +142,11 @@ class APIObject:
         self.api.raise_for_status(r)
         self.set_obj(r.json())
 
-    def update(self):
+    def update(self, is_strategic=True):
         '''
         Update the Kubernetes resource by calling the API (patch)
         '''
-        self.obj = obj_merge(self.obj, self._original_obj)
+        self.obj = obj_merge(self.obj, self._original_obj, is_strategic)
         self.patch(self.obj)
 
     def delete(self, propagation_policy: str = None):
