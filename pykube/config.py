@@ -12,6 +12,15 @@ import yaml
 from pykube import exceptions
 
 
+def _join_host_port(host, port):
+    """Adapted golang's net.JoinHostPort"""
+    template = "{}:{}"
+    host_requires_bracketing = ':' in host or '%' in host
+    if host_requires_bracketing:
+        template = "[{}]:{}"
+    return template.format(host, port)
+
+
 class KubeConfig:
     """
     Main configuration class.
@@ -36,7 +45,7 @@ class KubeConfig:
                 {
                     "name": "self",
                     "cluster": {
-                        "server": "https://{}:{}".format(host, port),
+                        "server": "https://" + _join_host_port(host, port),
                         "certificate-authority": os.path.join(path, "ca.crt"),
                     },
                 },
