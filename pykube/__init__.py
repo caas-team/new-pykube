@@ -2,7 +2,7 @@
 Python client for Kubernetes
 """
 
-__version__ = '19.12.0'
+__version__ = "19.12.0"
 
 from .config import KubeConfig  # noqa
 from .exceptions import KubernetesError, PyKubeError, ObjectDoesNotExist  # noqa

@@ -2,6 +2,7 @@ import re
 
 try:
     from jsonpath_ng import parse as jsonpath
+
     jsonpath_installed = True
 except ImportError:
     jsonpath_installed = False
@@ -59,4 +60,5 @@ def jsonpath_parse(template, obj):
         if not path.startswith("$"):
             path = "$" + path
         return jsonpath(path).find(obj)[0].value
+
     return re.sub(r"(\{([^\}]*)\})", repl, template)

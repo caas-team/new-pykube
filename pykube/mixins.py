@@ -15,7 +15,6 @@ class ReplicatedMixin:
 
 
 class ScalableMixin:
-
     @property
     def scalable(self):
         return getattr(self, self.scalable_attr)

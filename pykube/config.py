@@ -15,7 +15,7 @@ from pykube import exceptions
 def _join_host_port(host, port):
     """Adapted golang's net.JoinHostPort"""
     template = "{}:{}"
-    host_requires_bracketing = ':' in host or '%' in host
+    host_requires_bracketing = ":" in host or "%" in host
     if host_requires_bracketing:
         template = "[{}]:{}"
     return template.format(host, port)
@@ -27,10 +27,12 @@ class KubeConfig:
     """
 
     @classmethod
-    def from_service_account(cls, path="/var/run/secrets/kubernetes.io/serviceaccount", **kwargs):
-        '''
+    def from_service_account(
+        cls, path="/var/run/secrets/kubernetes.io/serviceaccount", **kwargs
+    ):
+        """
         Construct KubeConfig from in-cluster service account.
-        '''
+        """
 
         with open(os.path.join(path, "token")) as fp:
             token = fp.read()
@@ -48,24 +50,11 @@ class KubeConfig:
                         "server": "https://" + _join_host_port(host, port),
                         "certificate-authority": os.path.join(path, "ca.crt"),
                     },
-                },
-            ],
-            "users": [
-                {
-                    "name": "self",
-                    "user": {
-                        "token": token,
-                    },
-                },
-            ],
-            "contexts": [
-                {
-                    "name": "self",
-                    "context": {
-                        "cluster": "self",
-                        "user": "self",
-                    },
                 }
+            ],
+            "users": [{"name": "self", "user": {"token": token}}],
+            "contexts": [
+                {"name": "self", "context": {"cluster": "self", "user": "self"}}
             ],
             "current-context": "self",
         }
@@ -80,10 +69,12 @@ class KubeConfig:
         :param filename: The full path to the configuration file. Defaults to ~/.kube/config
         """
         if not filename:
-            filename = os.getenv('KUBECONFIG', '~/.kube/config')
+            filename = os.getenv("KUBECONFIG", "~/.kube/config")
         filename = os.path.expanduser(filename)
         if not os.path.isfile(filename):
-            raise exceptions.PyKubeError("Configuration file {} not found".format(filename))
+            raise exceptions.PyKubeError(
+                "Configuration file {} not found".format(filename)
+            )
         with open(filename) as f:
             doc = yaml.safe_load(f.read())
         self = cls(doc, **kwargs)
@@ -112,22 +103,8 @@ class KubeConfig:
         for interacting with kubectl proxy).
         """
         doc = {
-            "clusters": [
-                {
-                    "name": "self",
-                    "cluster": {
-                        "server": url,
-                    },
-                },
-            ],
-            "contexts": [
-                {
-                    "name": "self",
-                    "context": {
-                        "cluster": "self",
-                    },
-                }
-            ],
+            "clusters": [{"name": "self", "cluster": {"server": url}}],
+            "contexts": [{"name": "self", "context": {"cluster": "self"}}],
             "current-context": "self",
         }
         self = cls(doc, **kwargs)
@@ -156,7 +133,9 @@ class KubeConfig:
     @property
     def current_context(self):
         if self._current_context is None:
-            raise exceptions.PyKubeError("current context not set; call set_current_context")
+            raise exceptions.PyKubeError(
+                "current context not set; call set_current_context"
+            )
         return self._current_context
 
     @property
@@ -228,8 +207,13 @@ class KubeConfig:
             # Config was provided as string, not way to persit it
             return
         with open(self.filename, "w") as f:
-            yaml.safe_dump(self.doc, f, encoding='utf-8',
-                           allow_unicode=True, default_flow_style=False)
+            yaml.safe_dump(
+                self.doc,
+                f,
+                encoding="utf-8",
+                allow_unicode=True,
+                default_flow_style=False,
+            )
 
     def reload(self):
         if hasattr(self, "_users"):
@@ -269,7 +253,9 @@ class BytesOrFile:
             raise TypeError("filename or data kwarg must be specified, not both")
         elif filename is not None:
             if not os.path.isfile(filename):
-                raise exceptions.PyKubeError("'{}' file does not exist".format(filename))
+                raise exceptions.PyKubeError(
+                    "'{}' file does not exist".format(filename)
+                )
             self._filename = filename
         elif data is not None:
             self._bytes = base64.b64decode(data)

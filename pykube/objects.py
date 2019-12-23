@@ -2,60 +2,64 @@ import copy
 import json
 import os.path as op
 from inspect import getmro
-from typing import Type
+from typing import Type, Optional
 
 from urllib.parse import urlencode
 from .exceptions import ObjectDoesNotExist
 from .mixins import ReplicatedMixin, ScalableMixin
 from .query import Query
 from .utils import obj_merge
+from .http import HTTPClient
 
 
 class ObjectManager:
-    def __call__(self, api, namespace=None):
+    def __call__(self, api: HTTPClient, namespace: str = None):
         if namespace is None and NamespacedAPIObject in getmro(self.api_obj_class):
             namespace = api.config.namespace
         return Query(api, self.api_obj_class, namespace=namespace)
 
-    def __get__(self, obj, api_obj_class):
+    def __get__(self, obj, api_obj_class: Type):
         assert obj is None, "cannot invoke objects on resource object."
         self.api_obj_class = api_obj_class
         return self
 
 
 class APIObject:
-    '''
+    """
     Baseclass for all Kubernetes API objects
-    '''
+    """
 
     objects = ObjectManager()
     base = None
-    namespace = None
 
-    def __init__(self, api, obj):
+    def __init__(self, api: HTTPClient, obj: dict):
         self.api = api
         self.set_obj(obj)
 
-    def set_obj(self, obj):
+    def set_obj(self, obj: dict):
         self.obj = obj
         self._original_obj = copy.deepcopy(obj)
 
     def __repr__(self):
-        return "<{kind} {name}>".format(kind=self.kind, name=self.name)
+        return f"<{self.kind} {self.name}>"
 
     def __str__(self):
         return self.name
 
     @property
     def name(self) -> str:
-        '''
+        """
         Name of the Kubernetes resource (metadata.name)
 
         Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation
         of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition.
         Cannot be updated. More info: http://kubernetes.io/docs/user-guide/identifiers#names
-        '''
+        """
         return self.obj["metadata"]["name"]
+
+    @property
+    def namespace(self) -> Optional[str]:
+        return None
 
     @property
     def metadata(self):
@@ -63,22 +67,22 @@ class APIObject:
 
     @property
     def labels(self) -> dict:
-        '''
+        """
         Labels of the Kubernetes resource (metadata.labels)
 
         Map of string keys and values that can be used to organize and categorize (scope and select) objects.
         May match selectors of replication controllers and services. More info: http://kubernetes.io/docs/user-guide/labels
-        '''
+        """
         return self.obj["metadata"].setdefault("labels", {})
 
     @property
     def annotations(self) -> dict:
-        '''
+        """
         Annotations of the Kubernetes resource (metadata.annotations)
 
         Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata.
         They are not queryable and should be preserved when modifying objects. More info: http://kubernetes.io/docs/user-guide/annotations
-        '''
+        """
         return self.obj["metadata"].setdefault("annotations", {})
 
     def api_kwargs(self, **kwargs):
@@ -93,7 +97,9 @@ class APIObject:
         params = kwargs.pop("params", None)
         if params is not None:
             query_string = urlencode(params)
-            kw["url"] = "{}{}".format(kw["url"], "?{}".format(query_string) if query_string else "")
+            kw["url"] = "{}{}".format(
+                kw["url"], f"?{query_string}" if query_string else ""
+            )
         if self.base:
             kw["base"] = self.base
         kw["version"] = self.version
@@ -108,7 +114,7 @@ class APIObject:
             self.api.raise_for_status(r)
         if not r.ok:
             if ensure:
-                raise ObjectDoesNotExist("{} does not exist.".format(self.name))
+                raise ObjectDoesNotExist(f"{self.name} does not exist.")
             else:
                 return False
         return True
@@ -124,38 +130,39 @@ class APIObject:
         self.set_obj(r.json())
 
     def watch(self):
-        return self.__class__.objects(
-            self.api,
-            namespace=self.namespace
-        ).filter(field_selector={
-            "metadata.name": self.name
-        }).watch()
+        return (
+            self.__class__.objects(self.api, namespace=self.namespace)
+            .filter(field_selector={"metadata.name": self.name})
+            .watch()
+        )
 
     def patch(self, strategic_merge_patch):
-        '''
+        """
         Patch the Kubernetes resource by calling the API with a "strategic merge" patch.
-        '''
-        r = self.api.patch(**self.api_kwargs(
-            headers={"Content-Type": "application/merge-patch+json"},
-            data=json.dumps(strategic_merge_patch),
-        ))
+        """
+        r = self.api.patch(
+            **self.api_kwargs(
+                headers={"Content-Type": "application/merge-patch+json"},
+                data=json.dumps(strategic_merge_patch),
+            )
+        )
         self.api.raise_for_status(r)
         self.set_obj(r.json())
 
     def update(self, is_strategic=True):
-        '''
+        """
         Update the Kubernetes resource by calling the API (patch)
-        '''
+        """
         self.obj = obj_merge(self.obj, self._original_obj, is_strategic)
         self.patch(self.obj)
 
     def delete(self, propagation_policy: str = None):
-        '''
+        """
         Delete the Kubernetes resource by calling the API.
 
         The parameter propagation_policy defines whether to cascade the delete. It can be "Foreground", "Background" or "Orphan".
         See https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/#setting-the-cascading-deletion-policy
-        '''
+        """
         if propagation_policy:
             options = {"propagationPolicy": propagation_policy}
         else:
@@ -166,15 +173,14 @@ class APIObject:
 
 
 class NamespacedAPIObject(APIObject):
-
     @property
     def namespace(self) -> str:
-        '''
+        """
         Namespace scope of the Kubernetes resource (metadata.namespace)
 
         Namespace defines the space within each name must be unique.
         Cannot be updated. More info: http://kubernetes.io/docs/user-guide/namespaces
-        '''
+        """
         if self.obj["metadata"].get("namespace"):
             return self.obj["metadata"]["namespace"]
         else:
@@ -198,15 +204,19 @@ def object_factory(api, api_version, kind) -> Type[APIObject]:
     """
     resource_list = api.resource_list(api_version)
     try:
-        resource = next(resource for resource in resource_list["resources"] if resource["kind"] == kind)
+        resource = next(
+            resource
+            for resource in resource_list["resources"]
+            if resource["kind"] == kind
+        )
     except StopIteration:
         raise ValueError("unknown resource kind {!r}".format(kind)) from None
     base = NamespacedAPIObject if resource["namespaced"] else APIObject
-    return type(kind, (base,), {
-        "version": api_version,
-        "endpoint": resource["name"],
-        "kind": kind
-    })
+    return type(
+        kind,
+        (base,),
+        {"version": api_version, "endpoint": resource["name"], "kind": kind},
+    )
 
 
 class ConfigMap(NamespacedAPIObject):
@@ -239,8 +249,9 @@ class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
     @property
     def ready(self):
         return (
-            self.obj["status"]["observedGeneration"] >= self.obj["metadata"]["generation"] and
-            self.obj["status"]["updatedReplicas"] == self.replicas
+            self.obj["status"]["observedGeneration"]
+            >= self.obj["metadata"]["generation"]
+            and self.obj["status"]["updatedReplicas"] == self.replicas
         )
 
     def rollout_undo(self, target_revision=None):
@@ -250,15 +261,13 @@ class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
         if target_revision is None:
             revision = {}
         else:
-            revision = {
-                "revision": target_revision
-            }
+            revision = {"revision": target_revision}
 
         params = {
             "kind": "DeploymentRollback",
             "apiVersion": self.version,
             "name": self.name,
-            "rollbackTo": revision
+            "rollbackTo": revision,
         }
 
         kwargs = {
@@ -351,7 +360,7 @@ class Node(APIObject):
 
     @property
     def unschedulable(self):
-        if 'unschedulable' in self.obj["spec"]:
+        if "unschedulable" in self.obj["spec"]:
             return self.obj["spec"]["unschedulable"]
         return False
 
@@ -379,9 +388,17 @@ class Pod(NamespacedAPIObject):
         condition = next((c for c in cs if c["type"] == "Ready"), None)
         return condition is not None and condition["status"] == "True"
 
-    def logs(self, container=None, pretty=None, previous=False,
-             since_seconds=None, since_time=None, timestamps=False,
-             tail_lines=None, limit_bytes=None):
+    def logs(
+        self,
+        container=None,
+        pretty=None,
+        previous=False,
+        since_seconds=None,
+        since_time=None,
+        timestamps=False,
+        tail_lines=None,
+        limit_bytes=None,
+    ):
         """
         Produces the same result as calling kubectl logs pod/<pod-name>.
         Check parameters meaning at
@@ -408,7 +425,7 @@ class Pod(NamespacedAPIObject):
             params["limitBytes"] = int(limit_bytes)
 
         query_string = urlencode(params)
-        log_call += "?{}".format(query_string) if query_string else ""
+        log_call += f"?{query_string}" if query_string else ""
         kwargs = {
             "version": self.version,
             "namespace": self.namespace,
@@ -428,8 +445,9 @@ class ReplicationController(NamespacedAPIObject, ReplicatedMixin, ScalableMixin)
     @property
     def ready(self):
         return (
-            self.obj['status']['observedGeneration'] >= self.obj['metadata']['generation'] and
-            self.obj['status']['readyReplicas'] == self.replicas
+            self.obj["status"]["observedGeneration"]
+            >= self.obj["metadata"]["generation"]
+            and self.obj["status"]["readyReplicas"] == self.replicas
         )
 
 

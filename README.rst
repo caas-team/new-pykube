@@ -193,8 +193,8 @@ You can run pykube against your current kubeconfig context, e.g. local Minikube_
 
 .. code-block:: bash
 
-    pipenv install --dev
-    pipenv run python3
+    poetry install
+    poetry run python3
     >>> import pykube
     >>> config = pykube.KubeConfig.from_file()
     >>> api = pykube.HTTPClient(config)
