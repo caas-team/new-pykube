@@ -33,5 +33,5 @@ upload: package
 	poetry publish
 
 version:
-	sed -i "s/__version__ = .*/__version__ = '${VERSION}'/" pykube/__init__.py
+	sed -i 's/__version__ = .*/__version__ = "${VERSION}"/' pykube/__init__.py
 	poetry version "${VERSION}"
