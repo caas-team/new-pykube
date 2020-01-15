@@ -7,6 +7,7 @@ import json
 import posixpath
 import shlex
 import subprocess
+import os
 
 try:
     import google.auth
@@ -98,6 +99,24 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
             pass
         elif "token" in config.user and config.user["token"]:
             request.headers["Authorization"] = "Bearer {}".format(config.user["token"])
+
+        elif "exec" in config.user:
+            exec_conf = config.user["exec"]
+
+            if exec_conf["apiVersion"] == "client.authentication.k8s.io/v1alpha1":
+                cmd_env_vars = dict(os.environ)
+                for env_var in exec_conf.get("env") or []:
+                    cmd_env_vars[env_var["name"]] = env_var["value"]
+
+                output = subprocess.check_output(
+                    [exec_conf["command"]] + exec_conf["args"], env=cmd_env_vars
+                )
+
+                parsed_out = json.loads(output)
+                token = parsed_out["status"]["token"]
+
+            request.headers["Authorization"] = "Bearer {}".format(token)
+
         elif "auth-provider" in config.user:
             auth_provider = config.user["auth-provider"]
             if auth_provider.get("name") == "gcp":
