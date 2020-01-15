@@ -1,13 +1,12 @@
 """
 HTTP request related code.
 """
-
 import datetime
 import json
+import os
 import posixpath
 import shlex
 import subprocess
-import os
 
 try:
     import google.auth

@@ -1,7 +1,7 @@
 current-context: thecluster
 clusters:
     - name: thecluster
-      cluster: 
+      cluster:
         insecure-skip-tls-verify: true
 users:
     - name: admin

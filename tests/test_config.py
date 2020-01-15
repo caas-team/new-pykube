@@ -1,20 +1,21 @@
 """
 pykube.config unittests
 """
-
 import os
-import pytest
-
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from pykube import config, exceptions
+import pytest
 
 from . import TestCase
+from pykube import config
+from pykube import exceptions
 
 
 GOOD_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config.yaml"])
-DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config_default_user.yaml"])
+DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(
+    ["tests", "test_config_default_user.yaml"]
+)
 
 
 def test_from_service_account_no_file(tmpdir):
@@ -23,34 +24,38 @@ def test_from_service_account_no_file(tmpdir):
 
 
 def test_from_service_account_(tmpdir):
-    token_file = Path(tmpdir) / 'token'
-    ca_file = Path(tmpdir) / 'ca.crt'
+    token_file = Path(tmpdir) / "token"
+    ca_file = Path(tmpdir) / "ca.crt"
 
-    with token_file.open('w') as fd:
-        fd.write('mytok')
+    with token_file.open("w") as fd:
+        fd.write("mytok")
 
-    with ca_file.open('w') as fd:
-        fd.write('myca')
+    with ca_file.open("w") as fd:
+        fd.write("myca")
 
-    os.environ['KUBERNETES_SERVICE_HOST'] = '127.0.0.1'
-    os.environ['KUBERNETES_SERVICE_PORT'] = '9443'
+    os.environ["KUBERNETES_SERVICE_HOST"] = "127.0.0.1"
+    os.environ["KUBERNETES_SERVICE_PORT"] = "9443"
 
     cfg = config.KubeConfig.from_service_account(path=str(tmpdir))
 
-    assert cfg.doc['clusters'][0]['cluster'] == {'server': 'https://127.0.0.1:9443', 'certificate-authority': str(ca_file)}
-    assert cfg.doc['users'][0]['user']['token'] == 'mytok'
+    assert cfg.doc["clusters"][0]["cluster"] == {
+        "server": "https://127.0.0.1:9443",
+        "certificate-authority": str(ca_file),
+    }
+    assert cfg.doc["users"][0]["user"]["token"] == "mytok"
 
 
 def test_from_url():
-    cfg = config.KubeConfig.from_url('http://localhost:8080')
-    assert cfg.doc['clusters'][0]['cluster'] == {'server': 'http://localhost:8080'}
-    assert 'users' not in cfg.doc
+    cfg = config.KubeConfig.from_url("http://localhost:8080")
+    assert cfg.doc["clusters"][0]["cluster"] == {"server": "http://localhost:8080"}
+    assert "users" not in cfg.doc
 
 
 @pytest.fixture
 def kubeconfig(tmpdir):
-    kubeconfig = tmpdir.join('kubeconfig')
-    kubeconfig.write('''
+    kubeconfig = tmpdir.join("kubeconfig")
+    kubeconfig.write(
+        """
 apiVersion: v1
 clusters:
 - cluster: {server: 'https://localhost:9443'}
@@ -64,31 +69,33 @@ preferences: {}
 users:
 - name: test
   user: {token: testtoken}
-    ''')
+    """
+    )
     return kubeconfig
 
 
-@pytest.mark.parametrize("kubeconfig_env,expected_path", [
-    (None, '~/.kube/config'),
-    ('/some/path', '/some/path')
-])
-def test_from_default_kubeconfig(kubeconfig_env, expected_path, monkeypatch, kubeconfig):
+@pytest.mark.parametrize(
+    "kubeconfig_env,expected_path",
+    [(None, "~/.kube/config"), ("/some/path", "/some/path")],
+)
+def test_from_default_kubeconfig(
+    kubeconfig_env, expected_path, monkeypatch, kubeconfig
+):
     mock = MagicMock()
     mock.return_value = str(kubeconfig)
-    monkeypatch.setattr('os.path.expanduser', mock)
+    monkeypatch.setattr("os.path.expanduser", mock)
 
     if kubeconfig_env is None:
-        monkeypatch.delenv('KUBECONFIG', raising=False)
+        monkeypatch.delenv("KUBECONFIG", raising=False)
     else:
-        monkeypatch.setenv('KUBECONFIG', kubeconfig_env)
+        monkeypatch.setenv("KUBECONFIG", kubeconfig_env)
 
     cfg = config.KubeConfig.from_file()
     mock.assert_called_with(expected_path)
-    assert cfg.doc['clusters'][0]['cluster'] == {'server': 'https://localhost:9443'}
+    assert cfg.doc["clusters"][0]["cluster"] == {"server": "https://localhost:9443"}
 
 
 class TestConfig(TestCase):
-
     def setUp(self):
         self.cfg = config.KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
 
@@ -100,40 +107,33 @@ class TestConfig(TestCase):
         Test Config instance creation.
         """
         # Ensure that a valid creation works
-        self.assertEqual(
-            GOOD_CONFIG_FILE_PATH,
-            self.cfg.filename)
+        self.assertEqual(GOOD_CONFIG_FILE_PATH, self.cfg.filename)
 
         # Ensure that if a file does not exist the creation fails
         self.assertRaises(
-            exceptions.PyKubeError,
-            config.KubeConfig.from_file,
-            "doesnotexist")
+            exceptions.PyKubeError, config.KubeConfig.from_file, "doesnotexist"
+        )
 
     def test_set_current_context(self):
         """
         Verify set_current_context works as expected.
         """
         self.cfg.set_current_context("new_context")
-        self.assertEqual(
-            "new_context",
-            self.cfg.current_context)
+        self.assertEqual("new_context", self.cfg.current_context)
 
     def test_clusters(self):
         """
         Verify clusters works as expected.
         """
         self.assertEqual(
-            {"server": "http://localhost"},
-            self.cfg.clusters.get("thecluster", None))
+            {"server": "http://localhost"}, self.cfg.clusters.get("thecluster", None)
+        )
 
     def test_users(self):
         """
         Verify users works as expected.
         """
-        self.assertEqual(
-            "data",
-            self.cfg.users.get("admin", None))
+        self.assertEqual("data", self.cfg.users.get("admin", None))
 
     def test_contexts(self):
         """
@@ -141,7 +141,8 @@ class TestConfig(TestCase):
         """
         self.assertEqual(
             {"cluster": "thecluster", "user": "admin"},
-            self.cfg.contexts.get("thename", None))
+            self.cfg.contexts.get("thename", None),
+        )
 
     def test_cluster(self):
         """
@@ -151,8 +152,8 @@ class TestConfig(TestCase):
         try:
             cluster = self.cfg.cluster
             self.fail(
-                "cluster was found without a current context set: {}".format(
-                    cluster))
+                "cluster was found without a current context set: {}".format(cluster)
+            )
         except exceptions.PyKubeError:
             # We should get an error
             pass
@@ -167,9 +168,7 @@ class TestConfig(TestCase):
         # Without a current_context this should fail
         try:
             user = self.cfg.user
-            self.fail(
-                "user was found without a current context set: {}".format(
-                    user))
+            self.fail("user was found without a current context set: {}".format(user))
         except exceptions.PyKubeError:
             # We should get an error
             pass

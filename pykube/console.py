@@ -5,7 +5,7 @@ import pykube
 
 # import readline to support line editing within console session.
 try:
-    import readline  # noqa
+    import readline  # noqa: F401
 except ImportError:
     pass
 

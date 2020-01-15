@@ -1,9 +1,7 @@
 import json
-
 from collections import namedtuple
-
-from urllib.parse import urlencode
 from typing import Union
+from urllib.parse import urlencode
 
 from .exceptions import ObjectDoesNotExist
 from .http import HTTPClient

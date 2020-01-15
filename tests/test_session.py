@@ -1,37 +1,24 @@
 """
 pykube.http unittests
 """
-import os
 import copy
 import logging
+import os
 import tempfile
 
 from . import TestCase
 
 BASE_CONFIG = {
     "clusters": [
-        {
-            "name": "test-cluster",
-            "cluster": {
-                "server": "http://localhost:8080",
-            }
-        }
+        {"name": "test-cluster", "cluster": {"server": "http://localhost:8080"}}
     ],
     "contexts": [
         {
             "name": "test-cluster",
-            "context": {
-                "cluster": "test-cluster",
-                "user": "test-user",
-            }
+            "context": {"cluster": "test-cluster", "user": "test-user"},
         }
     ],
-    "users": [
-        {
-            'name': 'test-user',
-            'user': {},
-        }
-    ],
+    "users": [{"name": "test-user", "user": {}}],
     "current-context": "test-cluster",
 }
 
@@ -39,7 +26,6 @@ _log = logging.getLogger(__name__)
 
 
 class TestSession(TestCase):
-
     def setUp(self):
         self.config = copy.deepcopy(BASE_CONFIG)
 
@@ -48,21 +34,23 @@ class TestSession(TestCase):
 
         Observed in GKE with kubelet v1.3.
         """
-        self.config.update({
-            'users': [
-                {
-                    'name': 'test-user',
-                    'user': {
-                        'auth-provider': {
-                            'config': {
-                                'access-token': 'abc',
-                                'expiry': '2016-08-24T16:19:17.19878675-07:00',
+        self.config.update(
+            {
+                "users": [
+                    {
+                        "name": "test-user",
+                        "user": {
+                            "auth-provider": {
+                                "config": {
+                                    "access-token": "abc",
+                                    "expiry": "2016-08-24T16:19:17.19878675-07:00",
+                                },
                             },
                         },
                     },
-                },
-            ]
-        })
+                ]
+            }
+        )
 
         gcloud_content = """
 {
@@ -74,18 +62,18 @@ class TestSession(TestCase):
 
 """
 
-        _log.info('Built config: %s', self.config)
+        _log.info("Built config: %s", self.config)
         try:
             tmp = tempfile.mktemp()
-            with open(tmp, 'w') as f:
+            with open(tmp, "w") as f:
                 f.write(gcloud_content)
 
             # TODO: this no longer works due to refactoring, GCP session handling is now done in KubernetesHTTPAdapter
-            #session = pykube.session.GCPSession(pykube.KubeConfig(doc=self.config), tmp)
-            #self.assertEquals(session.oauth.token['access_token'], 'abc')
-            #self.assertEquals(session.oauth.token['refresh_token'], 'myrefreshtoken')
-            #self.assertEquals(session.credentials.get('client_id'), 'myclientid')
-            #self.assertEquals(session.credentials.get('client_secret'), 'myclientsecret')
+            # session = pykube.session.GCPSession(pykube.KubeConfig(doc=self.config), tmp)
+            # self.assertEquals(session.oauth.token['access_token'], 'abc')
+            # self.assertEquals(session.oauth.token['refresh_token'], 'myrefreshtoken')
+            # self.assertEquals(session.credentials.get('client_id'), 'myclientid')
+            # self.assertEquals(session.credentials.get('client_secret'), 'myclientsecret')
         finally:
             if os.path.exists(tmp):
                 os.remove(tmp)

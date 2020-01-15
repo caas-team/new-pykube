@@ -4,10 +4,10 @@ Python client for Kubernetes
 
 __version__ = "20.1.0"
 
-from .config import KubeConfig  # noqa
-from .exceptions import KubernetesError, PyKubeError, ObjectDoesNotExist  # noqa
-from .http import HTTPClient  # noqa
-from .objects import (  # noqa
+from .config import KubeConfig  # noqa: F401
+from .exceptions import KubernetesError, PyKubeError, ObjectDoesNotExist  # noqa: F401
+from .http import HTTPClient  # noqa: F401
+from .objects import (  # noqa: F401
     object_factory,
     ConfigMap,
     CronJob,
@@ -40,4 +40,4 @@ from .objects import (  # noqa
     RoleBinding,
     ClusterRoleBinding,
 )
-from .query import now, all_ as all, everything  # noqa
+from .query import now, all_ as all, everything  # noqa: F401

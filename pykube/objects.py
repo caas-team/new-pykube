@@ -2,14 +2,16 @@ import copy
 import json
 import os.path as op
 from inspect import getmro
-from typing import Type, Optional
-
+from typing import Optional
+from typing import Type
 from urllib.parse import urlencode
+
 from .exceptions import ObjectDoesNotExist
-from .mixins import ReplicatedMixin, ScalableMixin
+from .http import HTTPClient
+from .mixins import ReplicatedMixin
+from .mixins import ScalableMixin
 from .query import Query
 from .utils import obj_merge
-from .http import HTTPClient
 
 
 class ObjectManager:

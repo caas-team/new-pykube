@@ -23,10 +23,10 @@ All standard classes from :ref:`pykube-package` are automatically imported, so y
 .. code-block:: python
 
     >>> for deploy in Deployment.objects(api):
-    ...     print(f'{deploy.name}: {deploy.replicas}')        
+    ...     print(f'{deploy.name}: {deploy.replicas}')
 
 You can also pass a Python command via the ``-c`` option for non-interactive usage:
 
 .. code-block:: bash
 
-    python3 -m pykube -c 'print(config.current_context, api.version)' 
+    python3 -m pykube -c 'print(config.current_context, api.version)'

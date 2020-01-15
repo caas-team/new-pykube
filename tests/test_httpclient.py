@@ -5,33 +5,19 @@ import copy
 import logging
 
 import pykube
-
 from . import TestCase
 
 BASE_CONFIG = {
     "clusters": [
-        {
-            "name": "test-cluster",
-            "cluster": {
-                "server": "http://localhost:8080",
-            }
-        }
+        {"name": "test-cluster", "cluster": {"server": "http://localhost:8080"}}
     ],
     "contexts": [
         {
             "name": "test-cluster",
-            "context": {
-                "cluster": "test-cluster",
-                "user": "test-user",
-            }
+            "context": {"cluster": "test-cluster", "user": "test-user"},
         }
     ],
-    "users": [
-        {
-            'name': 'test-user',
-            'user': {},
-        }
-    ],
+    "users": [{"name": "test-user", "user": {}}],
     "current-context": "test-cluster",
 }
 
@@ -43,8 +29,14 @@ class TestHTTPClient(TestCase):
         self.config = copy.deepcopy(BASE_CONFIG)
 
     def ensure_no_auth(self, client):
-        self.assertIsNone(client.session.cert, msg="Should not send certs when not configured")
-        self.assertNotIn("Authorization", client.session.headers, msg="Should not send basic auth when not configured")
+        self.assertIsNone(
+            client.session.cert, msg="Should not send certs when not configured"
+        )
+        self.assertNotIn(
+            "Authorization",
+            client.session.headers,
+            msg="Should not send basic auth when not configured",
+        )
 
     def test_no_auth_with_empty_user(self):
         """
@@ -54,27 +46,20 @@ class TestHTTPClient(TestCase):
             "clusters": [
                 {
                     "name": "no-auth-cluster",
-                    "cluster": {
-                        "server": "http://localhost:8080",
-                    }
+                    "cluster": {"server": "http://localhost:8080"},
                 }
             ],
-            "users": [
-                {
-                    "name": "no-auth-cluster",
-                    "user": {}
-                }
-            ],
+            "users": [{"name": "no-auth-cluster", "user": {}}],
             "contexts": [
                 {
                     "name": "no-auth-cluster",
                     "context": {
                         "cluster": "no-auth-cluster",
-                        "user": "no-auth-cluster"
-                    }
+                        "user": "no-auth-cluster",
+                    },
                 }
             ],
-            "current-context": "no-auth-cluster"
+            "current-context": "no-auth-cluster",
         }
         client = pykube.HTTPClient(pykube.KubeConfig(doc=config))
         self.ensure_no_auth(client)
@@ -84,20 +69,13 @@ class TestHTTPClient(TestCase):
             "clusters": [
                 {
                     "name": "no-auth-cluster",
-                    "cluster": {
-                        "server": "http://localhost:8080",
-                    }
+                    "cluster": {"server": "http://localhost:8080"},
                 }
             ],
             "contexts": [
-                {
-                    "name": "no-auth-cluster",
-                    "context": {
-                        "cluster": "no-auth-cluster"
-                    }
-                }
+                {"name": "no-auth-cluster", "context": {"cluster": "no-auth-cluster"}}
             ],
-            "current-context": "no-auth-cluster"
+            "current-context": "no-auth-cluster",
         }
         client = pykube.HTTPClient(pykube.KubeConfig(doc=config))
         self.ensure_no_auth(client)
@@ -105,20 +83,13 @@ class TestHTTPClient(TestCase):
     def test_build_session_bearer_token(self):
         """Test that HTTPClient correctly parses the token
         """
-        self.config.update({
-            'users': [
-                {
-                    'name': 'test-user',
-                    'user': {
-                        'token': 'test'
-                    },
-                },
-            ]
-        })
-        _log.info('Built config: %s', self.config)
+        self.config.update(
+            {"users": [{"name": "test-user", "user": {"token": "test"}}]}
+        )
+        _log.info("Built config: %s", self.config)
 
         client = pykube.HTTPClient(pykube.KubeConfig(doc=self.config))
-        _log.debug('Checking headers %s', client.session.headers)
+        _log.debug("Checking headers %s", client.session.headers)
         # TODO: session.headers is no long filled due to KubernetesHTTPAdapter!
-        #self.assertIn('Authorization', client.session.headers)
-        #self.assertEqual(client.session.headers['Authorization'], 'Bearer test')
+        # self.assertIn('Authorization', client.session.headers)
+        # self.assertEqual(client.session.headers['Authorization'], 'Bearer test')

@@ -1,11 +1,10 @@
 """
 Configuration code.
 """
-
 import base64
 import copy
-import tempfile
 import os
+import tempfile
 
 import yaml
 

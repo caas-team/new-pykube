@@ -11,10 +11,11 @@ clean:
 install:
 	poetry install
 
-test: install
-	poetry run flake8
-	poetry run black --check pykube
-	poetry run mypy --ignore-missing-imports pykube
+.PHONY: lint
+lint: install
+	poetry run pre-commit run --all-files
+
+test: lint install
 	poetry run coverage run --source=pykube -m py.test
 	poetry run coverage html
 	poetry run coverage report
