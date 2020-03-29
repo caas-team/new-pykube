@@ -94,8 +94,11 @@ class APIObject:
         if obj_list:
             kw["url"] = self.endpoint
         else:
+            subresource = kwargs.pop("subresource", None) or ""
             operation = kwargs.pop("operation", "")
-            kw["url"] = op.normpath(op.join(self.endpoint, self.name, operation))
+            kw["url"] = op.normpath(
+                op.join(self.endpoint, self.name, subresource, operation)
+            )
         params = kwargs.pop("params", None)
         if params is not None:
             query_string = urlencode(params)
@@ -138,12 +141,13 @@ class APIObject:
             .watch()
         )
 
-    def patch(self, strategic_merge_patch):
+    def patch(self, strategic_merge_patch, *, subresource=None):
         """
         Patch the Kubernetes resource by calling the API with a "strategic merge" patch.
         """
         r = self.api.patch(
             **self.api_kwargs(
+                subresource=subresource,
                 headers={"Content-Type": "application/merge-patch+json"},
                 data=json.dumps(strategic_merge_patch),
             )
@@ -151,12 +155,12 @@ class APIObject:
         self.api.raise_for_status(r)
         self.set_obj(r.json())
 
-    def update(self, is_strategic=True):
+    def update(self, is_strategic=True, *, subresource=None):
         """
         Update the Kubernetes resource by calling the API (patch)
         """
         self.obj = obj_merge(self.obj, self._original_obj, is_strategic)
-        self.patch(self.obj)
+        self.patch(self.obj, subresource=subresource)
 
     def delete(self, propagation_policy: str = None):
         """

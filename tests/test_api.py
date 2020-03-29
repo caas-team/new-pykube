@@ -338,3 +338,31 @@ def test_resource_list(api, requests_mock):
         )
         resource_list = api.resource_list("example.org/v1")
         assert resource_list == data2
+
+
+def test_patch_subresource(api, requests_mock):
+    with requests_mock as rsps:
+        rsps.add(
+            responses.GET,
+            "https://localhost:9443/apis/apps/v1/namespaces/default/deployments",
+            json={"items": [{"metadata": {"name": "deploy-1"}}]},
+        )
+
+        deployments = list(Deployment.objects(api))
+        assert len(deployments) == 1
+        deploy = deployments[0]
+        assert deploy.name == "deploy-1"
+        assert deploy.namespace == "default"
+
+        rsps.add(
+            responses.PATCH,
+            "https://localhost:9443/apis/apps/v1/namespaces/default/deployments/deploy-1/status",
+            json={"metadata": {"name": "deploy-1"}, "status": {"field": "field"}},
+        )
+
+        deploy.patch({"status": {"field": "field"}}, subresource="status")
+        assert len(rsps.calls) == 2
+
+        assert json.loads(rsps.calls[-1].request.body) == {
+            "status": {"field": "field"},
+        }
