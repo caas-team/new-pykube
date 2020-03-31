@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 try:
     from jsonpath_ng import parse as jsonpath
@@ -62,3 +63,27 @@ def jsonpath_parse(template, obj):
         return jsonpath(path).find(obj)[0].value
 
     return re.sub(r"(\{([^\}]*)\})", repl, template)
+
+
+def join_url_path(*components, join_empty: bool = False) -> str:
+    """Join given URL path components and return absolute path starting with '/'."""
+    new_comps: List[str] = []
+    for comp in components:
+        comp = comp.strip("/")
+        if comp in ("", "."):
+            continue
+        else:
+            new_comps.append(comp)
+
+    if components and components[-1] == "" and join_empty:
+        trailing_slash = True
+    elif components and components[-1] == "/":
+        trailing_slash = True
+    else:
+        trailing_slash = False
+
+    if trailing_slash:
+        new_comps.append("")
+
+    path = "/".join(new_comps)
+    return "/" + path

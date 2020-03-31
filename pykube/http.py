@@ -4,7 +4,6 @@ HTTP request related code.
 import datetime
 import json
 import os
-import posixpath
 import shlex
 import subprocess
 from typing import Optional
@@ -23,7 +22,7 @@ from http import HTTPStatus
 from urllib.parse import urlparse
 
 from .exceptions import HTTPError
-from .utils import jsonpath_installed, jsonpath_parse
+from .utils import jsonpath_installed, jsonpath_parse, join_url_path
 from .config import KubeConfig
 
 from . import __version__
@@ -139,7 +138,9 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
                 parsed_out = json.loads(output)
                 token = parsed_out["status"]["token"]
             else:
-                raise NotImplementedError(f'auth exec api version {api_version} not implemented')
+                raise NotImplementedError(
+                    f"auth exec api version {api_version} not implemented"
+                )
 
             request.headers["Authorization"] = "Bearer {}".format(token)
             return None
@@ -286,10 +287,8 @@ class HTTPClient:
                 if namespace:
                     bits.extend(["namespaces", namespace])
         url = kwargs.get("url", "")
-        if url.startswith("/"):
-            url = url[1:]
         bits.append(url)
-        kwargs["url"] = self.url + posixpath.join(*bits)
+        kwargs["url"] = self.url + join_url_path(*bits, join_empty=True)
         if "timeout" not in kwargs:
             # apply default HTTP timeout
             kwargs["timeout"] = self.timeout

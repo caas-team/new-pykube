@@ -1,3 +1,4 @@
+from pykube.utils import join_url_path
 from pykube.utils import obj_merge
 
 
@@ -28,3 +29,16 @@ def test_obj_merge():
     assert obj_merge(
         {"a": {"b": [1, 2]}}, {"a": {"b": [3, 4, 5], "c": [1, 2]}}, is_strategic=False
     ) == {"a": {"b": [1, 2]}}
+
+
+def test_join_url_path():
+    assert join_url_path() == "/"
+    assert join_url_path("") == "/"
+    assert join_url_path("", "/") == "/"
+    assert join_url_path("first", "") == "/first"
+    assert join_url_path("first", "/") == "/first/"
+    assert join_url_path("first", "second") == "/first/second"
+    assert join_url_path("/first", "second/") == "/first/second"
+    assert join_url_path("first", "second", "") == "/first/second"
+    assert join_url_path("first", "/", "second", "", "") == "/first/second"
+    assert join_url_path("/first", "second", "", join_empty=True) == "/first/second/"

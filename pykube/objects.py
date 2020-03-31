@@ -1,6 +1,5 @@
 import copy
 import json
-import os.path as op
 from inspect import getmro
 from typing import Optional
 from typing import Type
@@ -11,6 +10,7 @@ from .http import HTTPClient
 from .mixins import ReplicatedMixin
 from .mixins import ScalableMixin
 from .query import Query
+from .utils import join_url_path
 from .utils import obj_merge
 
 
@@ -96,9 +96,8 @@ class APIObject:
         else:
             subresource = kwargs.pop("subresource", None) or ""
             operation = kwargs.pop("operation", "")
-            kw["url"] = op.normpath(
-                op.join(self.endpoint, self.name, subresource, operation)
-            )
+            kw["url"] = join_url_path(self.endpoint, self.name, subresource, operation)
+
         params = kwargs.pop("params", None)
         if params is not None:
             query_string = urlencode(params)
