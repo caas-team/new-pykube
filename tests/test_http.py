@@ -99,3 +99,21 @@ def test_http_with_oidc_auth(monkeypatch):
 
     mock_send.assert_called_once()
     assert mock_send.call_args[0][0].headers["Authorization"] == "Bearer some-id-token"
+
+
+def test_get_kwargs():
+    cfg = KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
+    api = HTTPClient(cfg)
+
+    assert api.get_kwargs(version="v1") == {
+        "timeout": 10,
+        "url": "http://localhost/api/v1/",
+    }
+    assert api.get_kwargs(version="/apis") == {
+        "timeout": 10,
+        "url": "http://localhost/apis/",
+    }
+    assert api.get_kwargs(version="storage.k8s.io/v1") == {
+        "timeout": 10,
+        "url": "http://localhost/apis/storage.k8s.io/v1/",
+    }

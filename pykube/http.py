@@ -275,7 +275,12 @@ class HTTPClient:
             if "base" not in kwargs:
                 raise TypeError("unknown API version; base kwarg must be specified.")
             base = kwargs.pop("base")
-        bits = [base, version]
+        if version.startswith("/"):
+            # for compatibility with pykube-ng 20.1.0 when calling api.get(version="/apis"):
+            # posixpath.join() was throwing away everything before the first "absolute" path (i.e. starting with a slash)
+            bits = [version]
+        else:
+            bits = [base, version]
         # Overwrite (default) namespace from context if it was set
         if "namespace" in kwargs:
             n = kwargs.pop("namespace")
