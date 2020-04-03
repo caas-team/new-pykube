@@ -211,6 +211,7 @@ class HTTPClient:
         config: KubeConfig,
         timeout: float = DEFAULT_HTTP_TIMEOUT,
         dry_run: bool = False,
+        verify: bool = True,
         http_adapter: Optional[requests.adapters.HTTPAdapter] = None,
     ):
         """
@@ -231,6 +232,7 @@ class HTTPClient:
         session.mount("https://", http_adapter)
         session.mount("http://", http_adapter)
         self.session = session
+        self.session.verify = verify
 
     @property
     def url(self):
