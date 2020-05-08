@@ -535,7 +535,7 @@ class ClusterRoleBinding(APIObject):
 
 class PodSecurityPolicy(APIObject):
 
-    version = "extensions/v1beta1"
+    version = "policy/v1beta1"
     endpoint = "podsecuritypolicies"
     kind = "PodSecurityPolicy"
 
