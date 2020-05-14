@@ -327,13 +327,6 @@ class Ingress(NamespacedAPIObject):
     kind = "Ingress"
 
 
-class ThirdPartyResource(APIObject):
-
-    version = "extensions/v1beta1"
-    endpoint = "thirdpartyresources"
-    kind = "ThirdPartyResource"
-
-
 class Job(NamespacedAPIObject, ScalableMixin):
 
     version = "batch/v1"
@@ -549,6 +542,6 @@ class PodDisruptionBudget(NamespacedAPIObject):
 
 class CustomResourceDefinition(APIObject):
 
-    version = "apiextensions.k8s.io/v1beta1"
+    version = "apiextensions.k8s.io/v1"
     endpoint = "customresourcedefinitions"
     kind = "CustomResourceDefinition"

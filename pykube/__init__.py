@@ -34,7 +34,6 @@ from .objects import (  # noqa: F401
     Service,
     ServiceAccount,
     StatefulSet,
-    ThirdPartyResource,
     Role,
     ClusterRole,
     RoleBinding,
