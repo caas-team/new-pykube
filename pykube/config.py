@@ -32,9 +32,12 @@ class KubeConfig:
         """
         Construct KubeConfig from in-cluster service account.
         """
+        with open(os.path.join(path, "namespace")) as fp:
+            namespace = fp.read()
 
         with open(os.path.join(path, "token")) as fp:
             token = fp.read()
+
         host = os.environ.get("PYKUBE_KUBERNETES_SERVICE_HOST")
         if host is None:
             host = os.environ["KUBERNETES_SERVICE_HOST"]
@@ -53,7 +56,14 @@ class KubeConfig:
             ],
             "users": [{"name": "self", "user": {"token": token}}],
             "contexts": [
-                {"name": "self", "context": {"cluster": "self", "user": "self"}}
+                {
+                    "name": "self",
+                    "context": {
+                        "cluster": "self",
+                        "user": "self",
+                        "namespace": namespace,
+                    },
+                }
             ],
             "current-context": "self",
         }

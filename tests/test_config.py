@@ -23,9 +23,13 @@ def test_from_service_account_no_file(tmpdir):
         config.KubeConfig.from_service_account(path=str(tmpdir))
 
 
-def test_from_service_account_(tmpdir):
+def test_from_service_account(tmpdir):
+    namespace_file = Path(tmpdir) / "namespace"
     token_file = Path(tmpdir) / "token"
     ca_file = Path(tmpdir) / "ca.crt"
+
+    with namespace_file.open("w") as fd:
+        fd.write("mynamespace")
 
     with token_file.open("w") as fd:
         fd.write("mytok")
@@ -43,6 +47,7 @@ def test_from_service_account_(tmpdir):
         "certificate-authority": str(ca_file),
     }
     assert cfg.doc["users"][0]["user"]["token"] == "mytok"
+    assert cfg.namespace == "mynamespace"
 
 
 def test_from_url():
