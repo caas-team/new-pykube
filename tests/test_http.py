@@ -1,7 +1,7 @@
 """
 pykube.http unittests
 """
-import os
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
@@ -11,11 +11,13 @@ from pykube.config import KubeConfig
 from pykube.http import DEFAULT_HTTP_TIMEOUT
 from pykube.http import HTTPClient
 
-GOOD_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config_with_context.yaml"])
-CONFIG_WITH_INSECURE_SKIP_TLS_VERIFY = os.path.sep.join(
-    ["tests", "test_config_with_insecure_skip_tls_verify.yaml"]
+
+BASEDIR = Path("tests")
+GOOD_CONFIG_FILE_PATH = BASEDIR / "test_config_with_context.yaml"
+CONFIG_WITH_INSECURE_SKIP_TLS_VERIFY = (
+    BASEDIR / "test_config_with_insecure_skip_tls_verify.yaml"
 )
-CONFIG_WITH_OIDC_AUTH = os.path.sep.join(["tests", "test_config_with_oidc_auth.yaml"])
+CONFIG_WITH_OIDC_AUTH = BASEDIR / "test_config_with_oidc_auth.yaml"
 
 
 def test_http(monkeypatch):

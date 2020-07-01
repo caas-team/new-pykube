@@ -2,6 +2,7 @@
 pykube.config unittests
 """
 import os
+import pathlib
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -12,10 +13,9 @@ from pykube import config
 from pykube import exceptions
 
 
-GOOD_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config.yaml"])
-DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(
-    ["tests", "test_config_default_user.yaml"]
-)
+BASEDIR = Path("tests")
+GOOD_CONFIG_FILE_PATH = BASEDIR / "test_config.yaml"
+DEFAULTUSER_CONFIG_FILE_PATH = BASEDIR / "test_config_default_user.yaml"
 
 
 def test_from_service_account_no_file(tmpdir):
@@ -87,8 +87,8 @@ def test_from_default_kubeconfig(
     kubeconfig_env, expected_path, monkeypatch, kubeconfig
 ):
     mock = MagicMock()
-    mock.return_value = str(kubeconfig)
-    monkeypatch.setattr("os.path.expanduser", mock)
+    mock.return_value.expanduser.return_value = Path(kubeconfig)
+    monkeypatch.setattr(pathlib, "Path", mock)
 
     if kubeconfig_env is None:
         monkeypatch.delenv("KUBECONFIG", raising=False)
@@ -112,7 +112,7 @@ class TestConfig(TestCase):
         Test Config instance creation.
         """
         # Ensure that a valid creation works
-        self.assertEqual(GOOD_CONFIG_FILE_PATH, self.cfg.filename)
+        self.assertEqual(GOOD_CONFIG_FILE_PATH, self.cfg.filepath)
 
         # Ensure that if a file does not exist the creation fails
         self.assertRaises(

@@ -3,8 +3,8 @@ pykube.http unittests
 """
 import copy
 import logging
-import os
 import tempfile
+from pathlib import Path
 
 from . import TestCase
 
@@ -64,8 +64,9 @@ class TestSession(TestCase):
 
         _log.info("Built config: %s", self.config)
         try:
-            tmp = tempfile.mktemp()
-            with open(tmp, "w") as f:
+            tmp = Path(tempfile.mktemp())
+
+            with tmp.open("w") as f:
                 f.write(gcloud_content)
 
             # TODO: this no longer works due to refactoring, GCP session handling is now done in KubernetesHTTPAdapter
@@ -75,5 +76,5 @@ class TestSession(TestCase):
             # self.assertEquals(session.credentials.get('client_id'), 'myclientid')
             # self.assertEquals(session.credentials.get('client_secret'), 'myclientsecret')
         finally:
-            if os.path.exists(tmp):
-                os.remove(tmp)
+            if tmp.exists():
+                tmp.unlink()

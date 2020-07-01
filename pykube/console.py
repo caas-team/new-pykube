@@ -43,7 +43,7 @@ def main(argv=None):
         if k[0] != "_" and k[0] == k[0].upper():
             context[k] = v
 
-    banner = f"""Pykube v{pykube.__version__}, loaded "{config.filename}" with context "{config.current_context}".
+    banner = f"""Pykube v{pykube.__version__}, loaded "{config.filepath}" with context "{config.current_context}".
 
     Example commands:
       [d.name for d in Deployment.objects(api)]              # get names of deployments in default namespace
