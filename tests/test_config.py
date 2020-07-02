@@ -2,6 +2,7 @@
 pykube.config unittests
 """
 import os
+import pathlib
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -12,10 +13,9 @@ from pykube import config
 from pykube import exceptions
 
 
-GOOD_CONFIG_FILE_PATH = os.path.sep.join(["tests", "test_config.yaml"])
-DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(
-    ["tests", "test_config_default_user.yaml"]
-)
+BASEDIR = Path("tests")
+GOOD_CONFIG_FILE_PATH = BASEDIR / "test_config.yaml"
+DEFAULTUSER_CONFIG_FILE_PATH = BASEDIR / "test_config_default_user.yaml"
 
 
 def test_from_service_account_no_file(tmpdir):
@@ -23,9 +23,13 @@ def test_from_service_account_no_file(tmpdir):
         config.KubeConfig.from_service_account(path=str(tmpdir))
 
 
-def test_from_service_account_(tmpdir):
+def test_from_service_account(tmpdir):
+    namespace_file = Path(tmpdir) / "namespace"
     token_file = Path(tmpdir) / "token"
     ca_file = Path(tmpdir) / "ca.crt"
+
+    with namespace_file.open("w") as fd:
+        fd.write("mynamespace")
 
     with token_file.open("w") as fd:
         fd.write("mytok")
@@ -43,6 +47,7 @@ def test_from_service_account_(tmpdir):
         "certificate-authority": str(ca_file),
     }
     assert cfg.doc["users"][0]["user"]["token"] == "mytok"
+    assert cfg.namespace == "mynamespace"
 
 
 def test_from_url():
@@ -82,8 +87,8 @@ def test_from_default_kubeconfig(
     kubeconfig_env, expected_path, monkeypatch, kubeconfig
 ):
     mock = MagicMock()
-    mock.return_value = str(kubeconfig)
-    monkeypatch.setattr("os.path.expanduser", mock)
+    mock.return_value.expanduser.return_value = Path(kubeconfig)
+    monkeypatch.setattr(pathlib, "Path", mock)
 
     if kubeconfig_env is None:
         monkeypatch.delenv("KUBECONFIG", raising=False)
@@ -107,7 +112,7 @@ class TestConfig(TestCase):
         Test Config instance creation.
         """
         # Ensure that a valid creation works
-        self.assertEqual(GOOD_CONFIG_FILE_PATH, self.cfg.filename)
+        self.assertEqual(GOOD_CONFIG_FILE_PATH, self.cfg.filepath)
 
         # Ensure that if a file does not exist the creation fails
         self.assertRaises(
