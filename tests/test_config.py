@@ -2,7 +2,6 @@
 pykube.config unittests
 """
 import os
-import pathlib
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -88,7 +87,7 @@ def test_from_default_kubeconfig(
 ):
     mock = MagicMock()
     mock.return_value.expanduser.return_value = Path(kubeconfig)
-    monkeypatch.setattr(pathlib, "Path", mock)
+    monkeypatch.setattr(config, "Path", mock)
 
     if kubeconfig_env is None:
         monkeypatch.delenv("KUBECONFIG", raising=False)

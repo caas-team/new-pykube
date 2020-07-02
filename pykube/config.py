@@ -4,8 +4,9 @@ Configuration code.
 import base64
 import copy
 import os
-import pathlib
 import tempfile
+from pathlib import Path
+from typing import Optional
 
 import yaml
 
@@ -26,6 +27,8 @@ class KubeConfig:
     Main configuration class.
     """
 
+    filepath = None
+
     @classmethod
     def from_service_account(
         cls, path="/var/run/secrets/kubernetes.io/serviceaccount", **kwargs
@@ -33,7 +36,7 @@ class KubeConfig:
         """
         Construct KubeConfig from in-cluster service account.
         """
-        service_account_dir = pathlib.Path(path)
+        service_account_dir = Path(path)
 
         with service_account_dir.joinpath("token").open() as fp:
             token = fp.read()
@@ -84,7 +87,7 @@ class KubeConfig:
         """
         if not filename:
             filename = os.getenv("KUBECONFIG", "~/.kube/config")
-        filepath = pathlib.Path(filename).expanduser()
+        filepath = Path(filename).expanduser()
         if not filepath.is_file():
             raise exceptions.PyKubeError(
                 "Configuration file {} not found".format(filename)
@@ -145,13 +148,22 @@ class KubeConfig:
         self._current_context = value
 
     @property
-    def kubeconfig_path(self):
+    def kubeconfig_path(self) -> Optional[Path]:
         """
         Returns the path to kubeconfig file, if it exists
         """
         if not hasattr(self, "filepath"):
             return None
         return self.filepath
+
+    @property
+    def kubeconfig_file(self) -> Optional[str]:
+        """
+        Returns the path to kubeconfig file as string, if it exists
+        """
+        if not hasattr(self, "filepath"):
+            return None
+        return str(self.filepath)
 
     @property
     def current_context(self):
@@ -277,12 +289,12 @@ class BytesOrFile:
             raise TypeError("filename or data kwarg must be specified, not both")
         elif filename is not None:
 
-            path = pathlib.Path(filename)
+            path = Path(filename)
             # If relative path is given, should be made absolute with respect to the directory of the kube config
             # https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#file-references
-            if path.is_absolute():
+            if not path.is_absolute():
                 if kubeconfig_path:
-                    path = kubeconfig_path.parent.join(path)
+                    path = kubeconfig_path.parent.joinpath(path)
                 else:
                     raise exceptions.PyKubeError(
                         "{} passed as relative path, but cannot determine location of kube config".format(
@@ -290,7 +302,7 @@ class BytesOrFile:
                         )
                     )
 
-            if path.is_file():
+            if not path.is_file():
                 raise exceptions.PyKubeError(
                     "'{}' file does not exist".format(filename)
                 )
