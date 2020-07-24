@@ -1,9 +1,12 @@
 import copy
 import json
 from inspect import getmro
+from typing import Any
 from typing import Optional
 from typing import Type
 from urllib.parse import urlencode
+
+from requests import Response
 
 from .exceptions import ObjectDoesNotExist
 from .http import HTTPClient
@@ -225,28 +228,24 @@ def object_factory(api, api_version, kind) -> Type[APIObject]:
 
 
 class ConfigMap(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "configmaps"
     kind = "ConfigMap"
 
 
 class CronJob(NamespacedAPIObject):
-
     version = "batch/v1beta1"
     endpoint = "cronjobs"
     kind = "CronJob"
 
 
 class DaemonSet(NamespacedAPIObject):
-
     version = "apps/v1"
     endpoint = "daemonsets"
     kind = "DaemonSet"
 
 
 class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
-
     version = "apps/v1"
     endpoint = "deployments"
     kind = "Deployment"
@@ -286,49 +285,42 @@ class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
 
 class Endpoint(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "endpoints"
     kind = "Endpoint"
 
 
 class Event(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "events"
     kind = "Event"
 
 
 class LimitRange(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "limitranges"
     kind = "LimitRange"
 
 
 class ResourceQuota(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "resourcequotas"
     kind = "ResourceQuota"
 
 
 class ServiceAccount(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "serviceaccounts"
     kind = "ServiceAccount"
 
 
 class Ingress(NamespacedAPIObject):
-
     version = "networking.k8s.io/v1beta1"
     endpoint = "ingresses"
     kind = "Ingress"
 
 
 class Job(NamespacedAPIObject, ScalableMixin):
-
     version = "batch/v1"
     endpoint = "jobs"
     kind = "Job"
@@ -344,14 +336,12 @@ class Job(NamespacedAPIObject, ScalableMixin):
 
 
 class Namespace(APIObject):
-
     version = "v1"
     endpoint = "namespaces"
     kind = "Namespace"
 
 
 class Node(APIObject):
-
     version = "v1"
     endpoint = "nodes"
     kind = "Node"
@@ -375,7 +365,6 @@ class Node(APIObject):
 
 
 class Pod(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "pods"
     kind = "Pod"
@@ -435,7 +424,6 @@ class Pod(NamespacedAPIObject):
 
 
 class ReplicationController(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
-
     version = "v1"
     endpoint = "replicationcontrollers"
     kind = "ReplicationController"
@@ -450,98 +438,173 @@ class ReplicationController(NamespacedAPIObject, ReplicatedMixin, ScalableMixin)
 
 
 class ReplicaSet(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
-
     version = "apps/v1"
     endpoint = "replicasets"
     kind = "ReplicaSet"
 
 
 class Secret(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "secrets"
     kind = "Secret"
 
 
 class Service(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "services"
     kind = "Service"
 
+    def proxy_http_request(
+        self, method: str, path: str, port: Optional[int] = None, **kwargs: Any
+    ) -> Response:
+        """Issue a HTTP request with specific HTTP method to proxy of a Service.
+        Args:
+            :param method: The http request method e.g. 'GET', 'POST' etc.
+            :param path: The URI path for the request.
+            :param port: This value can be used to override the
+            default (first defined) port used to connect to the Service.
+            :param kwargs: Keyword arguments for the proxy_http_get function.
+            They are the same as for requests.models.Request object.
+        Returns:
+            The requests.Response object.
+        """
+        if port is None:
+            port = self.obj["spec"]["ports"][0]["port"]
+        kwargs["url"] = f"services/{self.name}:{port}/proxy/{path}"
+        kwargs["namespace"] = self.namespace
+        kwargs["version"] = self.version
+        return self.api.request(method, **kwargs)
+
+    def proxy_http_get(
+        self, path: str, port: Optional[int] = None, **kwargs
+    ) -> Response:
+        """Issue a HTTP GET request to proxy of a Service.
+        Args:
+            :param path: The URI path for the request.
+            :param port: This value can be used to override the
+            default (first defined) port used to connect to the Service.
+            :param kwargs: Keyword arguments for the proxy_http_get function.
+            They are the same as for requests.models.Request object
+            plus the additional 'port' kwarg, which can be used to override the
+            default (first defined) port used to connect to the Service.
+        Returns:
+            The requests.Response object.
+        """
+        return self.proxy_http_request("GET", path, port, **kwargs)
+
+    def proxy_http_post(
+        self, path: str, port: Optional[int] = None, **kwargs
+    ) -> Response:
+        """Issue a HTTP POST request to proxy of a Service.
+        Args:
+            :param path: The URI path for the request.
+            :param port: This value can be used to override the
+            default (first defined) port used to connect to the Service.
+            :param kwargs: Keyword arguments for the proxy_http_get function.
+            They are the same as for requests.models.Request object
+            plus the additional 'port' kwarg, which can be used to override the
+            default (first defined) port used to connect to the Service.
+        Returns:
+            The requests.Response object.
+        """
+        return self.proxy_http_request("POST", path, port, **kwargs)
+
+    def proxy_http_put(
+        self, path: str, port: Optional[int] = None, **kwargs
+    ) -> Response:
+        """Issue a HTTP PUT request to proxy of a Service.
+        Args:
+            :param path: The URI path for the request.
+            :param port: This value can be used to override the
+            default (first defined) port used to connect to the Service.
+            :param kwargs: Keyword arguments for the proxy_http_get function.
+            They are the same as for requests.models.Request object
+            plus the additional 'port' kwarg, which can be used to override the
+            default (first defined) port used to connect to the Service.
+        Returns:
+            The requests.Response object.
+        """
+        return self.proxy_http_request("PUT", path, port, **kwargs)
+
+    def proxy_http_delete(
+        self, path: str, port: Optional[int] = None, **kwargs
+    ) -> Response:
+        """Issue a HTTP DELETE request to proxy of a Service.
+        Args:
+            :param path: The URI path for the request.
+            :param port: This value can be used to override the
+            default (first defined) port used to connect to the Service.
+            :param kwargs: Keyword arguments for the proxy_http_get function.
+            They are the same as for requests.models.Request object
+            plus the additional 'port' kwarg, which can be used to override the
+            default (first defined) port used to connect to the Service.
+        Returns:
+            The requests.Response object.
+        """
+        return self.proxy_http_request("DELETE", path, port, **kwargs)
+
 
 class PersistentVolume(APIObject):
-
     version = "v1"
     endpoint = "persistentvolumes"
     kind = "PersistentVolume"
 
 
 class PersistentVolumeClaim(NamespacedAPIObject):
-
     version = "v1"
     endpoint = "persistentvolumeclaims"
     kind = "PersistentVolumeClaim"
 
 
 class HorizontalPodAutoscaler(NamespacedAPIObject):
-
     version = "autoscaling/v1"
     endpoint = "horizontalpodautoscalers"
     kind = "HorizontalPodAutoscaler"
 
 
 class StatefulSet(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
-
     version = "apps/v1"
     endpoint = "statefulsets"
     kind = "StatefulSet"
 
 
 class Role(NamespacedAPIObject):
-
     version = "rbac.authorization.k8s.io/v1"
     endpoint = "roles"
     kind = "Role"
 
 
 class RoleBinding(NamespacedAPIObject):
-
     version = "rbac.authorization.k8s.io/v1"
     endpoint = "rolebindings"
     kind = "RoleBinding"
 
 
 class ClusterRole(APIObject):
-
     version = "rbac.authorization.k8s.io/v1"
     endpoint = "clusterroles"
     kind = "ClusterRole"
 
 
 class ClusterRoleBinding(APIObject):
-
     version = "rbac.authorization.k8s.io/v1"
     endpoint = "clusterrolebindings"
     kind = "ClusterRoleBinding"
 
 
 class PodSecurityPolicy(APIObject):
-
     version = "policy/v1beta1"
     endpoint = "podsecuritypolicies"
     kind = "PodSecurityPolicy"
 
 
 class PodDisruptionBudget(NamespacedAPIObject):
-
     version = "policy/v1beta1"
     endpoint = "poddisruptionbudgets"
     kind = "PodDisruptionBudget"
 
 
 class CustomResourceDefinition(APIObject):
-
     version = "apiextensions.k8s.io/v1"
     endpoint = "customresourcedefinitions"
     kind = "CustomResourceDefinition"
