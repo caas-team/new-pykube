@@ -2,7 +2,7 @@
 pykube.http unittests
 """
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest import mock
 
 import pytest
 
@@ -24,7 +24,7 @@ def test_http(monkeypatch):
     cfg = KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
     api = HTTPClient(cfg)
 
-    mock_send = MagicMock()
+    mock_send = mock.MagicMock()
     mock_send.side_effect = Exception("MOCK HTTP")
     monkeypatch.setattr("pykube.http.KubernetesHTTPAdapter._do_send", mock_send)
 
@@ -45,7 +45,7 @@ def test_http_with_dry_run(monkeypatch):
     cfg = KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
     api = HTTPClient(cfg, dry_run=True)
 
-    mock_send = MagicMock()
+    mock_send = mock.MagicMock()
     mock_send.side_effect = Exception("MOCK HTTP")
     monkeypatch.setattr("pykube.http.KubernetesHTTPAdapter._do_send", mock_send)
 
@@ -61,7 +61,7 @@ def test_http_insecure_skip_tls_verify(monkeypatch):
     cfg = KubeConfig.from_file(CONFIG_WITH_INSECURE_SKIP_TLS_VERIFY)
     api = HTTPClient(cfg)
 
-    mock_send = MagicMock()
+    mock_send = mock.MagicMock()
     mock_send.side_effect = Exception("MOCK HTTP")
     monkeypatch.setattr("pykube.http.KubernetesHTTPAdapter._do_send", mock_send)
 
@@ -77,7 +77,7 @@ def test_http_do_not_overwrite_auth(monkeypatch):
     cfg = KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
     api = HTTPClient(cfg)
 
-    mock_send = MagicMock()
+    mock_send = mock.MagicMock()
     mock_send.side_effect = Exception("MOCK HTTP")
     monkeypatch.setattr("pykube.http.KubernetesHTTPAdapter._do_send", mock_send)
 
@@ -88,16 +88,20 @@ def test_http_do_not_overwrite_auth(monkeypatch):
     assert mock_send.call_args[0][0].headers["Authorization"] == "Bearer testtoken"
 
 
-def test_http_with_oidc_auth(monkeypatch):
+def test_http_with_oidc_auth_no_refresh(monkeypatch):
     cfg = KubeConfig.from_file(CONFIG_WITH_OIDC_AUTH)
     api = HTTPClient(cfg)
 
-    mock_send = MagicMock()
+    mock_send = mock.MagicMock()
     mock_send.side_effect = Exception("MOCK HTTP")
     monkeypatch.setattr("pykube.http.KubernetesHTTPAdapter._do_send", mock_send)
 
-    with pytest.raises(Exception):
-        api.get(url="test")
+    with mock.patch(
+        "pykube.http.KubernetesHTTPAdapter._is_valid_jwt", return_value=True
+    ) as mock_jwt:
+        with pytest.raises(Exception):
+            api.get(url="test")
+        mock_jwt.assert_called_once_with("some-id-token")
 
     mock_send.assert_called_once()
     assert mock_send.call_args[0][0].headers["Authorization"] == "Bearer some-id-token"

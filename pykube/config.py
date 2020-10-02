@@ -200,6 +200,12 @@ class KubeConfig:
                     us[ur["name"]] = u = copy.deepcopy(ur["user"])
                     BytesOrFile.maybe_set(u, "client-certificate", self.kubeconfig_path)
                     BytesOrFile.maybe_set(u, "client-key", self.kubeconfig_path)
+                    if "auth-provider" in u:
+                        BytesOrFile.maybe_set(
+                            u["auth-provider"]["config"],
+                            "idp-certificate-authority",
+                            self.kubeconfig_path,
+                        )
             self._users = us
         return self._users
 

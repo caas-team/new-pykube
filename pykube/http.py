@@ -1,8 +1,10 @@
 """
 HTTP request related code.
 """
+import base64
 import datetime
 import json
+import logging
 import os
 import shlex
 import subprocess
@@ -15,19 +17,28 @@ try:
     google_auth_installed = True
 except ImportError:
     google_auth_installed = False
+try:
+    from requests_oauthlib import OAuth2Session
+
+    oidc_auth_installed = True
+except ImportError:
+    oidc_auth_installed = False
 
 import requests.adapters
 
 from http import HTTPStatus
 from urllib.parse import urlparse
 
-from .exceptions import HTTPError
+from .exceptions import HTTPError, PyKubeError
 from .utils import jsonpath_installed, jsonpath_parse, join_url_path
 from .config import KubeConfig
 
 from . import __version__
 
 DEFAULT_HTTP_TIMEOUT = 10  # seconds
+EXPIRY_SKEW_PREVENTION_DELAY = datetime.timedelta(minutes=5)
+UTC = datetime.timezone.utc
+LOG = logging.getLogger(__name__)
 
 
 class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
@@ -41,12 +52,11 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
 
         super().__init__(**kwargs)
 
-    def _persist_credentials(self, config, token, expiry):
+    def _persist_credentials(self, config, opts):
         user_name = config.contexts[config.current_context]["user"]
         user = [u["user"] for u in config.doc["users"] if u["name"] == user_name][0]
         auth_config = user["auth-provider"].setdefault("config", {})
-        auth_config["access-token"] = token
-        auth_config["expiry"] = expiry
+        auth_config.update(opts)
         config.persist_doc()
         config.reload()
 
@@ -70,16 +80,90 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
         )
 
         if should_persist and config:
-            self._persist_credentials(config, credentials.token, credentials.expiry)
+            auth_opts = {
+                "access-token": credentials.token,
+                "expiry": credentials.expiry,
+            }
+            self._persist_credentials(config, auth_opts)
 
         def retry(send_kwargs):
             credentials.refresh(auth_request)
             response = self.send(original_request, **send_kwargs)
             if response.ok and config:
-                self._persist_credentials(config, credentials.token, credentials.expiry)
+                auth_opts = {
+                    "access-token": credentials.token,
+                    "expiry": credentials.expiry,
+                }
+                self._persist_credentials(config, auth_opts)
             return response
 
         return retry
+
+    def _is_valid_jwt(self, token):
+        """Validate JWT token for correctness and near expiration"""
+        if not token:
+            return False
+        reserved_characters = frozenset(["=", "+", "/"])
+        if any(char in token for char in reserved_characters):
+            # Invalid jwt, as it contains url-unsafe chars
+            return False
+        parts = token.split(".")
+        if len(parts) != 3:  # Not a valid JWT
+            return False
+        padding = (4 - len(parts[1]) % 4) * "="
+        if len(padding) == 3:
+            # According to spec, 3 padding characters cannot occur
+            # in a valid jwt
+            # https://tools.ietf.org/html/rfc7515#appendix-C
+            return False
+        jwt_attributes = json.loads(
+            base64.b64decode(parts[1] + padding).decode("utf-8")
+        )
+        expire = jwt_attributes.get("exp")
+        # allow missing exp, but deny tokens that are about to expire soon
+        return expire is None or (
+            datetime.datetime.fromtimestamp(expire, tz=UTC)
+            - EXPIRY_SKEW_PREVENTION_DELAY
+        ) > datetime.datetime.utcnow().replace(tzinfo=UTC)
+
+    def _refresh_oidc_token(self, config):
+        if not oidc_auth_installed:
+            raise ImportError(
+                "missing dependencies for OIDC token refresh support "
+                "(try pip install pykube-ng[oidc]"
+            )
+        auth_config = config.user["auth-provider"]["config"]
+        if "idp-certificate-authority" in auth_config:
+            verify = auth_config["idp-certificate-authority"].filename()
+        else:
+            verify = None
+        oauth = OAuth2Session()
+        discovery = oauth.get(
+            f"{auth_config['idp-issuer-url']}/.well-known/openid-configuration",
+            verify=verify,
+            timeout=DEFAULT_HTTP_TIMEOUT,
+            withhold_token=True,
+        )
+
+        if discovery.status_code != HTTPStatus.OK:
+            raise PyKubeError(
+                f"Failed to discover OpenID token endpoint - "
+                f"HTTP {discovery.status_code}: {discovery.text}"
+            )
+        discovery = discovery.json()
+        refresh = oauth.refresh_token(
+            token_url=discovery["token_endpoint"],
+            refresh_token=auth_config["refresh-token"],
+            client_id=auth_config["client-id"],
+            client_secret=auth_config.get("client-secret"),
+            verify=verify,
+            timeout=DEFAULT_HTTP_TIMEOUT,
+        )
+        auth_opts = {
+            "id-token": refresh["id_token"],
+            "refresh-token": refresh["refresh_token"],
+        }
+        self._persist_credentials(config, auth_opts)
 
     def send(self, request, **kwargs):
         if "kube_config" in kwargs:
@@ -179,11 +263,19 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
                 return retry_func
             elif auth_provider.get("name") == "oidc":
                 auth_config = auth_provider.get("config", {})
-                # @@@ support token refresh
-                if "id-token" in auth_config:
-                    request.headers["Authorization"] = "Bearer {}".format(
-                        auth_config["id-token"]
-                    )
+                if not self._is_valid_jwt(auth_config.get("id-token")):
+                    try:
+                        self._refresh_oidc_token(config)
+                    # ignoring all exceptions, rely on retries
+                    except Exception as oidc_exc:
+                        LOG.warning(f"Failed to refresh OpenID token: {oidc_exc}")
+
+                # not using auth_config handle here as the config might have
+                # been reloaded during token refresh
+                request.headers["Authorization"] = "Bearer {}".format(
+                    config.user["auth-provider"]["config"]["id-token"]
+                )
+
         return None
 
     def _setup_request_certificates(self, config, request, kwargs):
