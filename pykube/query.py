@@ -91,7 +91,8 @@ class BaseQuery:
             params["fieldSelector"] = as_selector(self.field_selector)  # type: ignore
         query_string = urlencode(params)
         return "{}{}".format(
-            self.api_obj_class.endpoint, f"?{query_string}" if query_string else "",
+            self.api_obj_class.endpoint,
+            f"?{query_string}" if query_string else "",
         )
 
 

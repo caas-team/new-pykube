@@ -81,8 +81,7 @@ class TestHTTPClient(TestCase):
         self.ensure_no_auth(client)
 
     def test_build_session_bearer_token(self):
-        """Test that HTTPClient correctly parses the token
-        """
+        """Test that HTTPClient correctly parses the token"""
         self.config.update(
             {"users": [{"name": "test-user", "user": {"token": "test"}}]}
         )
