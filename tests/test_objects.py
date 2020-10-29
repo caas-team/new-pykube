@@ -1,4 +1,6 @@
-from typing import Dict, Any, Optional
+from typing import Any
+from typing import Dict
+from typing import Optional
 from unittest.mock import MagicMock
 
 import pytest
@@ -76,33 +78,41 @@ def test_update():
     [
         # empty port - default service port should be used
         (
-                None,
-                {"url": "services/test_service:9090/proxy//", "namespace": "test_namespace", "version": "v1"}
+            None,
+            {
+                "url": "services/test_service:9090/proxy//",
+                "namespace": "test_namespace",
+                "version": "v1",
+            },
         ),
         # override the default port, should be included in url
         (
-                8080,
-                {"url": "services/test_service:8080/proxy//", "namespace": "test_namespace", "version": "v1"},
+            8080,
+            {
+                "url": "services/test_service:8080/proxy//",
+                "namespace": "test_namespace",
+                "version": "v1",
+            },
         ),
     ],
 )
-def test_service_proxy_http_request(mocker: MockFixture, port: Optional[int],
-                                    expected_request_kwargs: Dict[str, Any]) -> None:
+def test_service_proxy_http_request(
+    mocker: MockFixture, port: Optional[int], expected_request_kwargs: Dict[str, Any]
+) -> None:
     mock_client = mocker.MagicMock(spec=pykube.http.HTTPClient)
 
-    service = pykube.Service(mock_client, {
-        "apiVersion": "core/v1",
-        "kind": "Service",
-        "metadata": {
-            "name": "test_service",
-            "namespace": "test_namespace",
+    service = pykube.Service(
+        mock_client,
+        {
+            "apiVersion": "core/v1",
+            "kind": "Service",
+            "metadata": {
+                "name": "test_service",
+                "namespace": "test_namespace",
+            },
+            "spec": {"ports": [{"port": 9090}]},
         },
-        "spec": {
-            "ports": [
-                {"port": 9090}
-            ]
-        }
-    })
+    )
     service.proxy_http_request("GET", "/", port)
 
     request = mock_client.request

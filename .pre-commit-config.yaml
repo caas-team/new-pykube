@@ -23,7 +23,7 @@ repos:
       - id: black
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.2
+    rev: v2.7.3
     hooks:
       - id: pyupgrade
         stages: [push]
@@ -71,7 +71,7 @@ repos:
         args: ["--strict", "-d", "{rules: {line-length: {max: 180}}}"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.782
+    rev: v0.790
     hooks:
       - id: mypy
 
@@ -81,7 +81,7 @@ repos:
       - id: flake8
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v3.3.0
     hooks:
       - id: check-added-large-files
       - id: check-docstring-first
@@ -96,7 +96,7 @@ repos:
         args: ["--django"]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.6.0
+    rev: v1.7.0
     hooks:
       #      - id: rst-backticks
       - id: python-use-type-annotations
@@ -109,6 +109,6 @@ repos:
   # http://jorisroovers.com/gitlint/#using-gitlint-through-pre-commit
 
   - repo: https://github.com/jorisroovers/gitlint
-    rev:  v0.13.1
+    rev:  v0.14.0
     hooks:
       - id: gitlint
