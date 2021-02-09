@@ -12,3 +12,5 @@ docs/_build
 htmlcov/
 .mypy_cache
 .idea/
+*.iml
+.DS_Store
