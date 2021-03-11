@@ -7,12 +7,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from pykube.config import BytesOrFile
 from . import TestCase
 from pykube import config
 from pykube import exceptions
+from pykube.config import BytesOrFile
 
-CERT_DUMMY = b'dummy'
+CERT_DUMMY = b"dummy"
 
 BASEDIR = Path("tests")
 GOOD_CONFIG_FILE_PATH = BASEDIR / "test_config.yaml"
@@ -21,7 +21,7 @@ DEFAULTUSER_CONFIG_FILE_PATH = BASEDIR / "test_config_default_user.yaml"
 
 def test_from_service_account_no_file(tmpdir):
     with pytest.raises(FileNotFoundError):
-        config.KubeConfig.from_service_account(path = str(tmpdir))
+        config.KubeConfig.from_service_account(path=str(tmpdir))
 
 
 def test_from_service_account(tmpdir):
@@ -41,7 +41,7 @@ def test_from_service_account(tmpdir):
     os.environ["KUBERNETES_SERVICE_HOST"] = "127.0.0.1"
     os.environ["KUBERNETES_SERVICE_PORT"] = "9443"
 
-    cfg = config.KubeConfig.from_service_account(path = str(tmpdir))
+    cfg = config.KubeConfig.from_service_account(path=str(tmpdir))
 
     assert cfg.doc["clusters"][0]["cluster"] == {
         "server": "https://127.0.0.1:9443",
@@ -85,14 +85,14 @@ users:
     [(None, "~/.kube/config"), ("/some/path", "/some/path")],
 )
 def test_from_default_kubeconfig(
-        kubeconfig_env, expected_path, monkeypatch, kubeconfig
+    kubeconfig_env, expected_path, monkeypatch, kubeconfig
 ):
     mock = MagicMock()
     mock.return_value.expanduser.return_value = Path(kubeconfig)
     monkeypatch.setattr(config, "Path", mock)
 
     if kubeconfig_env is None:
-        monkeypatch.delenv("KUBECONFIG", raising = False)
+        monkeypatch.delenv("KUBECONFIG", raising=False)
     else:
         monkeypatch.setenv("KUBECONFIG", kubeconfig_env)
 
@@ -127,11 +127,13 @@ class TestConfig(TestCase):
         """
         self.cfg.set_current_context("thename")
 
-        num_cert_files = len({
-            self.cfg.cluster["certificate-authority"].filename(),
-            self.cfg.cluster["certificate-authority"].filename(),
-            self.cfg.cluster["certificate-authority"].filename()
-        })
+        num_cert_files = len(
+            {
+                self.cfg.cluster["certificate-authority"].filename(),
+                self.cfg.cluster["certificate-authority"].filename(),
+                self.cfg.cluster["certificate-authority"].filename(),
+            }
+        )
 
         self.assertEqual(1, num_cert_files)
 
@@ -146,9 +148,15 @@ class TestConfig(TestCase):
         """
         Verify clusters works as expected.
         """
-        self.assertEqual("http://localhost", self.cfg.clusters.get("thecluster", {}).get("server", None))
         self.assertEqual(
-            CERT_DUMMY, self.cfg.clusters.get("thecluster", {}).get('certificate-authority', {"_bytes": None})._bytes
+            "http://localhost",
+            self.cfg.clusters.get("thecluster", {}).get("server", None),
+        )
+        self.assertEqual(
+            CERT_DUMMY,
+            self.cfg.clusters.get("thecluster", {})
+            .get("certificate-authority", {"_bytes": None})
+            ._bytes,
         )
 
     def test_users(self):
@@ -183,7 +191,8 @@ class TestConfig(TestCase):
         self.cfg.set_current_context("thename")
         self.assertEqual("http://localhost", self.cfg.cluster.get("server", None))
         self.assertEqual(
-            CERT_DUMMY, self.cfg.cluster.get('certificate-authority', {"_bytes": None})._bytes
+            CERT_DUMMY,
+            self.cfg.cluster.get("certificate-authority", {"_bytes": None})._bytes,
         )
 
     def test_user(self):

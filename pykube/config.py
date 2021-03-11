@@ -3,11 +3,11 @@ Configuration code.
 """
 import base64
 import copy
+import hashlib
 import os
+import tempfile
 from pathlib import Path
 from typing import Optional
-import hashlib
-import tempfile
 
 import yaml
 
