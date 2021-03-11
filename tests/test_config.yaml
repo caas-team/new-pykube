@@ -1,10 +1,13 @@
 # TODO: Replace with a more realistic example
 clusters:
     - name: thecluster
-      cluster: {}
+      cluster:
+            certificate-authority-data: ZHVtbXk=
 users:
     - name: admin
-      user: data
+      user:
+        client-certificate-data: ZHVtbXk=
+        client-key-data: ZHVtbXk=
 contexts:
     - name: thename
       context:
