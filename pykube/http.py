@@ -285,7 +285,9 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
                 config.user["client-key"].filename(),
             )
         # setup certificate verification
-        if "certificate-authority" in config.cluster:
+        if os.environ.get("PYKUBE_SSL_CERTIFICATE_AUTHORITY") is not None:
+            kwargs["verify"] = os.environ.get("PYKUBE_SSL_CERTIFICATE_AUTHORITY")
+        elif "certificate-authority" in config.cluster:
             kwargs["verify"] = config.cluster["certificate-authority"].filename()
         elif "insecure-skip-tls-verify" in config.cluster:
             kwargs["verify"] = not config.cluster["insecure-skip-tls-verify"]
