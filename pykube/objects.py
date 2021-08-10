@@ -315,7 +315,7 @@ class ServiceAccount(NamespacedAPIObject):
 
 
 class Ingress(NamespacedAPIObject):
-    version = "networking.k8s.io/v1beta1"
+    version = "networking.k8s.io/v1"
     endpoint = "ingresses"
     kind = "Ingress"
 
