@@ -10,6 +10,8 @@ import shlex
 import subprocess
 from typing import Optional
 
+import tempfile
+
 try:
     import google.auth
     from google.auth.transport.requests import Request as GoogleAuthRequest
@@ -210,23 +212,40 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
             exec_conf = config.user["exec"]
 
             api_version = exec_conf["apiVersion"]
-            if api_version == "client.authentication.k8s.io/v1alpha1":
-                cmd_env_vars = dict(os.environ)
-                for env_var in exec_conf.get("env") or []:
-                    cmd_env_vars[env_var["name"]] = env_var["value"]
-
-                output = subprocess.check_output(
-                    [exec_conf["command"]] + exec_conf["args"], env=cmd_env_vars
-                )
-
-                parsed_out = json.loads(output)
-                token = parsed_out["status"]["token"]
-            else:
+            base_name = "client.authentication.k8s.io"
+            supported_versions = \
+                [f"{base_name}/v1alpha1",
+                 f"{base_name}/v1beta1"]
+            if api_version not in supported_versions:
                 raise NotImplementedError(
                     f"auth exec api version {api_version} not implemented"
                 )
 
-            request.headers["Authorization"] = "Bearer {}".format(token)
+            cmd_env_vars = dict(os.environ)
+            for env_var in exec_conf.get("env") or []:
+                cmd_env_vars[env_var["name"]] = env_var["value"]
+
+            output = subprocess.check_output(
+                [exec_conf["command"]] + exec_conf["args"], env=cmd_env_vars
+            )
+
+            parsed_out = json.loads(output)
+            status = parsed_out["status"]
+
+            if status["token"]:
+                token = status["token"]
+                request.headers["Authorization"] = "Bearer {}".format(token)
+            elif status["clientCertificateData"] and status["clientKeyData"]:
+                self.cert = tempfile.NamedTemporaryFile(mode="w")
+                self.cert.write(status["clientCertificateData"])
+                self.cert.file.flush()
+                self.key = tempfile.NamedTemporaryFile(mode="w")
+                self.key.write(status["clientKeyData"])
+                self.key.file.flush()
+            else:
+                raise NotImplementedError(
+                    "Did not find the expected token or certificates."
+                )
             return None
 
         if config.user.get("username") and config.user.get("password"):
@@ -279,6 +298,12 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
         return None
 
     def _setup_request_certificates(self, config, request, kwargs):
+        if self.cert and self.key:
+            kwargs["cert"] = \
+            (
+                self.cert.name,
+                self.key.name,
+            )
         if "client-certificate" in config.user:
             kwargs["cert"] = (
                 config.user["client-certificate"].filename(),
