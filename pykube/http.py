@@ -8,9 +8,8 @@ import logging
 import os
 import shlex
 import subprocess
-from typing import Optional
-
 import tempfile
+from typing import Optional
 
 try:
     import google.auth
@@ -51,6 +50,9 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
 
     def __init__(self, kube_config: KubeConfig, **kwargs):
         self.kube_config = kube_config
+
+        self.cert = None
+        self.key = None
 
         super().__init__(**kwargs)
 
@@ -213,9 +215,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
 
             api_version = exec_conf["apiVersion"]
             base_name = "client.authentication.k8s.io"
-            supported_versions = \
-                [f"{base_name}/v1alpha1",
-                 f"{base_name}/v1beta1"]
+            supported_versions = [f"{base_name}/v1alpha1", f"{base_name}/v1beta1"]
             if api_version not in supported_versions:
                 raise NotImplementedError(
                     f"auth exec api version {api_version} not implemented"
@@ -299,8 +299,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
 
     def _setup_request_certificates(self, config, request, kwargs):
         if self.cert and self.key:
-            kwargs["cert"] = \
-            (
+            kwargs["cert"] = (
                 self.cert.name,
                 self.key.name,
             )

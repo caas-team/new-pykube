@@ -14,14 +14,11 @@ def test_obj_merge():
         "a": {"b": [1, 2, 5], "c": [1, 2]}
     }
 
-    assert (
-        obj_merge(
-            {"a": {"e": [1, 2], "f": [5, 6]}},
-            {"a": {"e": [3, 4]}, "b": ["1"]},
-            is_strategic=False,
-        )
-        == {"a": {"e": [1, 2], "f": [5, 6]}}
-    )
+    assert obj_merge(
+        {"a": {"e": [1, 2], "f": [5, 6]}},
+        {"a": {"e": [3, 4]}, "b": ["1"]},
+        is_strategic=False,
+    ) == {"a": {"e": [1, 2], "f": [5, 6]}}
     assert obj_merge({"a": []}, {"a": [1, 2]}, is_strategic=False) == {"a": []}
     assert obj_merge({"a": {"b": [1, 2]}}, {"a": [1, 2]}, is_strategic=False) == {
         "a": {"b": [1, 2]}
