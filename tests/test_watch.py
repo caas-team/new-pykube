@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from pykube import Pod
+from pykube.exceptions import HTTPError
 from pykube.query import Query
 
 
@@ -32,6 +33,33 @@ def test_watch_response_is_set_on_iter(api):
 
     stream = Query(api, Pod).watch()
     next(iter(stream))
+
+    assert stream.response is expected_response
+
+    assert api.get.call_count == 1
+    assert api.get.call_args_list[0][1]["stream"] is True
+    assert "watch=true" in api.get.call_args_list[0][1]["url"]
+
+
+def test_watch_exception_raised_on_failure(api):
+    line1 = json.dumps(
+        {
+            "kind": "Status",
+            "apiVersion": "meta.k8s.io/v1",
+            "metadata": {},
+            "status": "Failure",
+            "message": "unexpected EOF",
+            "code": 500,
+        }
+    ).encode("utf-8")
+    expected_response = MagicMock()
+    expected_response.iter_lines.return_value = [line1]
+    api.get.return_value = expected_response
+
+    stream = Query(api, Pod).watch()
+
+    with pytest.raises(HTTPError):
+        next(iter(stream))
 
     assert stream.response is expected_response
 

@@ -3,6 +3,7 @@ from collections import namedtuple
 from typing import Union
 from urllib.parse import urlencode
 
+from .exceptions import HTTPError
 from .exceptions import ObjectDoesNotExist
 from .http import HTTPClient
 
@@ -222,6 +223,8 @@ class WatchQuery(BaseQuery):
         WatchEvent = namedtuple("WatchEvent", "type object")
         for line in r.iter_lines():
             we = json.loads(line.decode("utf-8"))
+            if we.get("kind") == "Status":
+                raise HTTPError(we["code"], we["message"])
             yield WatchEvent(
                 type=we["type"], object=self.api_obj_class(self.api, we["object"])
             )
