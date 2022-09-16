@@ -232,10 +232,10 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
             parsed_out = json.loads(output)
             status = parsed_out["status"]
 
-            if status["token"]:
+            if status.get("token"):
                 token = status["token"]
                 request.headers["Authorization"] = "Bearer {}".format(token)
-            elif status["clientCertificateData"] and status["clientKeyData"]:
+            elif status.get("clientCertificateData") and status.get("clientKeyData"):
                 self.cert = tempfile.NamedTemporaryFile(mode="w")
                 self.cert.write(status["clientCertificateData"])
                 self.cert.file.flush()
