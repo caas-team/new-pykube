@@ -315,6 +315,15 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
             kwargs["verify"] = config.cluster["certificate-authority"].filename()
         elif "insecure-skip-tls-verify" in config.cluster:
             kwargs["verify"] = not config.cluster["insecure-skip-tls-verify"]
+        # support for tls-server-name
+        if "tls-server-name" in config.cluster:
+            connection_pool_kwargs = self.poolmanager.connection_pool_kw
+            connection_pool_kwargs["assert_hostname"] = config.cluster[
+                "tls-server-name"
+            ]
+            connection_pool_kwargs["server_hostname"] = config.cluster[
+                "tls-server-name"
+            ]
 
 
 class HTTPClient:
