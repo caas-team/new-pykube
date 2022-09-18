@@ -14,3 +14,4 @@ htmlcov/
 .idea/
 *.iml
 .DS_Store
+.python-version
