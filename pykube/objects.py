@@ -557,7 +557,7 @@ class PersistentVolumeClaim(NamespacedAPIObject):
 
 
 class HorizontalPodAutoscaler(NamespacedAPIObject):
-    version = "autoscaling/v1"
+    version = "autoscaling/v2"
     endpoint = "horizontalpodautoscalers"
     kind = "HorizontalPodAutoscaler"
 
@@ -592,6 +592,8 @@ class ClusterRoleBinding(APIObject):
     kind = "ClusterRoleBinding"
 
 
+# PodSecurityPolicy no longer exists in v1.25
+# see https://kubernetes.io/docs/reference/using-api/deprecation-guide/#psp-v125
 class PodSecurityPolicy(APIObject):
     version = "policy/v1beta1"
     endpoint = "podsecuritypolicies"
@@ -599,7 +601,7 @@ class PodSecurityPolicy(APIObject):
 
 
 class PodDisruptionBudget(NamespacedAPIObject):
-    version = "policy/v1beta1"
+    version = "policy/v1"
     endpoint = "poddisruptionbudgets"
     kind = "PodDisruptionBudget"
 
