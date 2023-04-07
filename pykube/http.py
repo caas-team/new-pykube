@@ -43,7 +43,6 @@ LOG = logging.getLogger(__name__)
 
 
 class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
-
     # _do_send: the actual send method of HTTPAdapter
     # it can be overwritten in unit tests to mock the actual HTTP calls
     _do_send = requests.adapters.HTTPAdapter.send

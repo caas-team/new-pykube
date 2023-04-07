@@ -18,7 +18,7 @@ from .utils import obj_merge
 
 
 class ObjectManager:
-    def __call__(self, api: HTTPClient, namespace: str = None):
+    def __call__(self, api: HTTPClient, namespace: Optional[str] = None):
         if namespace is None and NamespacedAPIObject in getmro(self.api_obj_class):
             namespace = api.config.namespace
         return Query(api, self.api_obj_class, namespace=namespace)
@@ -164,7 +164,7 @@ class APIObject:
         self.obj = obj_merge(self.obj, self._original_obj, is_strategic)
         self.patch(self.obj, subresource=subresource)
 
-    def delete(self, propagation_policy: str = None):
+    def delete(self, propagation_policy: Optional[str] = None):
         """
         Delete the Kubernetes resource by calling the API.
 

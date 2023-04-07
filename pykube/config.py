@@ -245,7 +245,6 @@ class KubeConfig:
         return self.contexts[self.current_context].get("namespace", "default")
 
     def persist_doc(self):
-
         if not self.kubeconfig_path:
             # Config was provided as string, not way to persit it
             return
@@ -295,7 +294,6 @@ class BytesOrFile:
         if filename is not None and data is not None:
             raise TypeError("filename or data kwarg must be specified, not both")
         elif filename is not None:
-
             path = Path(filename)
             # If relative path is given, should be made absolute with respect to the directory of the kube config
             # https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#file-references
@@ -334,7 +332,6 @@ class BytesOrFile:
         Returns the provided data as a file location.
         """
         if not self._path:
-
             m = hashlib.md5()
             m.update(self._bytes)
 

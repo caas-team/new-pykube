@@ -2,7 +2,6 @@ import time
 
 
 class ReplicatedMixin:
-
     scalable_attr = "replicas"
 
     @property

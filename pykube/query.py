@@ -1,5 +1,6 @@
 import json
 from collections import namedtuple
+from typing import Optional
 from typing import Union
 from urllib.parse import urlencode
 
@@ -39,7 +40,7 @@ class Table:
 
 
 class BaseQuery:
-    def __init__(self, api: HTTPClient, api_obj_class, namespace: str = None):
+    def __init__(self, api: HTTPClient, api_obj_class, namespace: Optional[str] = None):
         self.api = api
         self.api_obj_class = api_obj_class
         self.namespace = namespace
@@ -56,9 +57,9 @@ class BaseQuery:
 
     def filter(
         self,
-        namespace: str = None,
-        selector: Union[str, dict] = None,
-        field_selector: Union[str, dict] = None,
+        namespace: Optional[str] = None,
+        selector: Optional[Union[str, dict]] = None,
+        field_selector: Optional[Union[str, dict]] = None,
     ) -> "BaseQuery":
         """
         Filter objects by namespace, labels, or fields
@@ -83,7 +84,7 @@ class BaseQuery:
         clone.field_selector = self.field_selector
         return clone
 
-    def _build_api_url(self, params: dict = None):
+    def _build_api_url(self, params: Optional[dict] = None):
         if params is None:
             params = {}
         if self.selector is not everything:

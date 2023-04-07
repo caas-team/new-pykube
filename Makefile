@@ -16,7 +16,7 @@ lint: install
 	poetry run pre-commit run --all-files
 
 test: lint install
-	poetry run coverage run --source=pykube -m py.test
+	poetry run coverage run --source=pykube -m pytest
 	poetry run coverage html
 	poetry run coverage report
 
