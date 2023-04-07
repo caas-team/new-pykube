@@ -226,7 +226,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
                 cmd_env_vars[env_var["name"]] = env_var["value"]
 
             output = subprocess.check_output(
-                [exec_conf["command"]] + exec_conf["args"], env=cmd_env_vars
+                [exec_conf["command"]] + exec_conf.get("args", []), env=cmd_env_vars
             )
 
             parsed_out = json.loads(output)
