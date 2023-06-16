@@ -2,7 +2,7 @@
 Python client for Kubernetes
 """
 
-__version__ = "23.5.0"
+__version__ = "23.6.0"
 
 from .config import KubeConfig  # noqa: F401
 from .exceptions import KubernetesError, PyKubeError, ObjectDoesNotExist  # noqa: F401
