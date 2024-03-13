@@ -18,6 +18,12 @@ jobs:
       run: pip install poetry
     - name: Build Wheel
       run: poetry build -f wheel
+    - name: Upload Wheel
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist/*
+    
     # Publishing to PyPI. Necessary?
     # - name: Publish to PyPI
     #   uses: pypa/gh-action-pypi-publish@master
