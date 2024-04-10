@@ -19,7 +19,6 @@ jobs:
     - name: Install dependencies
       run: |
         pip install poetry
-        poetry add --dev pytest-html
         poetry install
     - name: Run pytest and generate HTML report
       run: poetry run pytest --html=report.html --self-contained-html
