@@ -1138,4 +1138,4 @@ oidc = ["requests-oauthlib"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4"
-content-hash = "a6f2553afa52032bb5072b53da31ae5668defa38328eaaed52e4b07f0d8ed20e"
+content-hash = "3f9091d4f62dad91cffc05b9a3e173e713d2db40c07cc9eb8ece4df87d8be705"
