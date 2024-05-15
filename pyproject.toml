@@ -46,3 +46,7 @@ sphinx-autodoc-annotation = "^1.0-1"
 flake8 = "^3.7"
 pre-commit = "^2.9.2"
 pytest-mock = "^3.1.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest-html = "^4.1.1"
+
