@@ -1,6 +1,6 @@
 [tool]
 [tool.poetry]
-name = "pykube-ng"
+name = "new-pykube"
 version = "23.6.0"
 description = "Python client library for Kubernetes"
 license = "Apache"
@@ -19,8 +19,8 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
 ]
 authors = ["Eldarion, Inc. <development@eldarion.com>", "Henning Jacobs <henning@jacobs1.de>"]
-readme = "README.rst"
-homepage = "https://codeberg.org/hjacobs/pykube-ng"
+readme = "README.md"
+homepage = "https://github.com/caas-team/new-pykube"
 packages = [{ include = "pykube" }]
 
 [tool.poetry.dependencies]
