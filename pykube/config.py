@@ -335,7 +335,7 @@ class BytesOrFile:
             m = hashlib.md5()
             m.update(self._bytes)
 
-            path = Path(f"{tempfile.gettempdir()}/pykube-ng.{m.hexdigest()}.crt")
+            path = Path(f"{tempfile.gettempdir()}/new-pykube.{m.hexdigest()}.crt")
             if not path.exists() or path.stat().st_size == 0:
                 with open(path, "wb") as f:
                     f.write(self._bytes)
