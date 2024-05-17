@@ -185,3 +185,8 @@ Create an issue and we will take a look. PRs are welcome.
 ## Code of Conduct
 
 In order to foster a kind, inclusive, and harassment-free community, this project follows the [Contributor Covenant Code of Conduct](http://contributor-covenant.org/version/1/4/).
+
+## Acknowledgments
+
+Thanks to [pykube-ng](https://codeberg.org/hjacobs/pykube-ng) project authored
+by [Henning Jacobs](https://github.com/hjacobs).
