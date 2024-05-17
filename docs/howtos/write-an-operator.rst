@@ -28,7 +28,7 @@ You can now test the script locally with Pipenv_ and Minikube_ (run ``minikube s
 
 .. code-block:: bash
 
-    pipenv install pykube-ng
+    pipenv install new-pykube
     pipenv run python3 main.py
 
 See the operator in action by creating a deployment with the right annotation:
@@ -51,7 +51,7 @@ Create a ``Dockerfile`` in the same directory as ``main.py``:
 
     WORKDIR /
 
-    RUN pip3 install pykube-ng
+    RUN pip3 install new-pykube
 
     COPY main.py /
 

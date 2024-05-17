@@ -133,7 +133,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
         if not oidc_auth_installed:
             raise ImportError(
                 "missing dependencies for OIDC token refresh support "
-                "(try pip install pykube-ng[oidc]"
+                "(try pip install new-pykube[oidc]"
             )
         auth_config = config.user["auth-provider"]["config"]
         if "idp-certificate-authority" in auth_config:
@@ -257,7 +257,7 @@ class KubernetesHTTPAdapter(requests.adapters.HTTPAdapter):
                 dependencies = [google_auth_installed, jsonpath_installed]
                 if not all(dependencies):
                     raise ImportError(
-                        "missing dependencies for GCP support (try pip install pykube-ng[gcp]"
+                        "missing dependencies for GCP support (try pip install new-pykube[gcp]"
                     )
                 auth_config = auth_provider.get("config", {})
                 if "cmd-path" in auth_config:
@@ -352,7 +352,7 @@ class HTTPClient:
         self.dry_run = dry_run
 
         session = requests.Session()
-        session.headers["User-Agent"] = f"pykube-ng/{__version__}"
+        session.headers["User-Agent"] = f"new-pykube/{__version__}"
         if not http_adapter:
             http_adapter = self.http_adapter_cls(self.config)
         session.mount("https://", http_adapter)
