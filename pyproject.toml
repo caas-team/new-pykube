@@ -1,7 +1,7 @@
 [tool]
 [tool.poetry]
 name = "new-pykube"
-version = "23.6.0"
+version = "24.5.1"
 description = "Python client library for Kubernetes"
 license = "Apache"
 classifiers = [
@@ -18,7 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3 :: Only",
 ]
-authors = ["Eldarion, Inc. <development@eldarion.com>", "Henning Jacobs <henning@jacobs1.de>"]
+authors = ["Jonathan Mayer <jonathan.mayer@telekom.de>", "Jan Taeuber <jan.taeuber@telekom.de>", "Johannes Thiem <johannesthiem6@gmail.com>"]
 readme = "README.md"
 homepage = "https://github.com/caas-team/new-pykube"
 packages = [{ include = "pykube" }]

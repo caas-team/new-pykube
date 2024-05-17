@@ -16,7 +16,7 @@ This is a fork of [pykube-ng](https://codeberg.org/hjacobs/pykube-ng) which is n
 
 To install pykube, use pip:
 ```bash
-pip install pykube-ng
+pip install new-pykube
 ```
 
 
