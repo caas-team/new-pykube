@@ -1,7 +1,7 @@
 [tool]
 [tool.poetry]
 name = "new-pykube"
-version = "24.5.1"
+version = "24.5.2"
 description = "Python client library for Kubernetes"
 license = "Apache"
 classifiers = [
