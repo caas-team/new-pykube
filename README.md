@@ -1,6 +1,8 @@
 new-pykube
 =========
 
+[![PyPI version](https://badge.fury.io/py/new-pykube.svg)](https://badge.fury.io/py/new-pykube) [![Downloads](https://static.pepy.tech/badge/new-pykube/month)](https://pepy.tech/project/new-pykube) ![Python Test](https://github.com/caas-team/new-pykube/actions/workflows/python-tests.yml/badge.svg)
+
 Pykube (new-pykube) is a lightweight Python 3.6+ client library for Kubernetes.
 
 This is a fork of [pykube-ng](https://codeberg.org/hjacobs/pykube-ng) which is no longer maintained.
