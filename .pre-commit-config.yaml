@@ -1,7 +1,6 @@
 ---
-minimum_pre_commit_version: 1.21.0
 fail_fast: false
-default_stages: [commit, push]
+default_stages: [pre-commit, pre-push]
 repos:
   # meta
 
@@ -26,7 +25,7 @@ repos:
     rev: v3.6.0
     hooks:
       - id: pyupgrade
-        stages: [push]
+        stages: [pre-push]
 
   # linters
 
@@ -35,7 +34,7 @@ repos:
     hooks:
       - id: bandit
         args: ["-x", "tests"]
-        stages: [push]
+        stages: [pre-push]
 
         #- repo: https://github.com/PyCQA/pydocstyle
         #rev: 5.0.2
@@ -43,17 +42,15 @@ repos:
         #- id: pydocstyle
         #args: ["--ignore=D10,D21,D202"]
 
-
   - repo: local
     hooks:
-
       - id: safety
         name: safety
         entry: safety
         language: system
         pass_filenames: false
         args: ["check", "--bare"]
-        stages: [push]
+        stages: [pre-push]
 
       - id: poetry
         name: poetry
@@ -62,7 +59,7 @@ repos:
         language: system
         pass_filenames: false
         files: ^pyproject.toml$
-        stages: [push]
+        stages: [pre-push]
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.32.0
@@ -110,6 +107,6 @@ repos:
   # http://jorisroovers.com/gitlint/#using-gitlint-through-pre-commit
 
   - repo: https://github.com/jorisroovers/gitlint
-    rev:  v0.19.1
+    rev: v0.19.1
     hooks:
       - id: gitlint
