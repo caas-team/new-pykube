@@ -1,5 +1,4 @@
 ---
-minimum_pre_commit_version: 4.0.1
 fail_fast: false
 default_stages: [pre-commit, pre-push]
 repos:
