@@ -62,15 +62,5 @@ class TestSession(TestCase):
 """
 
         _log.info("Built config: %s", self.config)
-        try:
-            with tempfile.NamedTemporaryFile(mode="w", delete=True) as f:
-                f.write(gcloud_content)
-
-            # TODO: this no longer works due to refactoring, GCP session handling is now done in KubernetesHTTPAdapter
-            # session = pykube.session.GCPSession(pykube.KubeConfig(doc=self.config), tmp)
-            # self.assertEquals(session.oauth.token['access_token'], 'abc')
-            # self.assertEquals(session.oauth.token['refresh_token'], 'myrefreshtoken')
-            # self.assertEquals(session.credentials.get('client_id'), 'myclientid')
-            # self.assertEquals(session.credentials.get('client_secret'), 'myclientsecret')
-        except Exception as e:
-            _log.error("An error occurred: %s", e)
+        with tempfile.NamedTemporaryFile(mode="w", delete=True) as f:
+            f.write(gcloud_content)
