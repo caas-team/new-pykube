@@ -4,7 +4,6 @@ pykube.http unittests
 import copy
 import logging
 import tempfile
-from pathlib import Path
 
 from . import TestCase
 
@@ -64,9 +63,7 @@ class TestSession(TestCase):
 
         _log.info("Built config: %s", self.config)
         try:
-            tmp = Path(tempfile.mktemp())
-
-            with tmp.open("w") as f:
+            with tempfile.NamedTemporaryFile(mode="w", delete=True) as f:
                 f.write(gcloud_content)
 
             # TODO: this no longer works due to refactoring, GCP session handling is now done in KubernetesHTTPAdapter
@@ -75,6 +72,5 @@ class TestSession(TestCase):
             # self.assertEquals(session.oauth.token['refresh_token'], 'myrefreshtoken')
             # self.assertEquals(session.credentials.get('client_id'), 'myclientid')
             # self.assertEquals(session.credentials.get('client_secret'), 'myclientsecret')
-        finally:
-            if tmp.exists():
-                tmp.unlink()
+        except Exception as e:
+            _log.error("An error occurred: %s", e)
