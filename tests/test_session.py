@@ -1,6 +1,4 @@
-"""
-pykube.http unittests
-"""
+# pykube.http unittests
 import copy
 import logging
 import tempfile

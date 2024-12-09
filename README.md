@@ -1,5 +1,4 @@
-new-pykube
-=========
+# new-pykube
 
 [![PyPI version](https://badge.fury.io/py/new-pykube.svg)](https://pypi.org/project/new-pykube)
 [![Downloads](https://static.pepy.tech/badge/new-pykube/month)](https://github.com/caas-team/new-pykube/releases)
@@ -7,22 +6,20 @@ new-pykube
 
 Pykube (new-pykube) is a lightweight Python 3.6+ client library for Kubernetes.
 
-This is a fork of [pykube-ng](https://codeberg.org/hjacobs/pykube-ng) which is no longer maintained.
-
+This is a fork of the no longer maintained [pykube-ng](https://codeberg.org/hjacobs/pykube-ng).
 
 ## Features
 
-* HTTP interface using requests using kubeconfig for authentication
-* Python native querying of Kubernetes API objects
-
+- HTTP interface using requests using kubeconfig for authentication
+- Python native querying of Kubernetes API objects
 
 ## Installation
 
 To install pykube, use pip:
+
 ```bash
 pip install new-pykube
 ```
-
 
 ## Interactive Console
 
@@ -34,9 +31,7 @@ python3 -m pykube
 >>> [d.name for d in Deployment.objects(api)]
 ```
 
-
 ## Usage
-
 
 ### Query for all ready pods in a custom namespace:
 
@@ -49,14 +44,12 @@ pods = pykube.Pod.objects(api).filter(namespace="gondor-system")
 ready_pods = filter(operator.attrgetter("ready"), pods)
 ```
 
-
 ### Access any attribute of the Kubernetes object:
 
 ```python
 pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get(name="my-pod")
 pod.obj["spec"]["containers"][0]["image"]
 ```
-
 
 ### Selector query:
 
@@ -70,7 +63,6 @@ pending_pods = pykube.objects.Pod.objects(api).filter(
 )
 ```
 
-
 ### Watch query:
 
 ```python
@@ -82,7 +74,6 @@ for watch_event in watch:
     print(watch_event.type) # 'ADDED', 'DELETED', 'MODIFIED'
     print(watch_event.object) # pykube.Job object
 ```
-
 
 ### Create a Deployment:
 
@@ -124,7 +115,6 @@ obj = {
 pykube.Deployment(api, obj).create()
 ```
 
-
 ### Delete a Deployment:
 
 ```python
@@ -139,7 +129,6 @@ obj = {
 pykube.Deployment(api, obj).delete()
 ```
 
-
 ### Check server version:
 
 ```python
@@ -147,13 +136,11 @@ api = pykube.HTTPClient(pykube.KubeConfig.from_file())
 api.version
 ```
 
-
 ## Requirements
 
-* Python 3.6+
-* requests (included in `install_requires`)
-* PyYAML (included in `install_requires`)
-
+- Python 3.6+
+- requests (included in `install_requires`)
+- PyYAML (included in `install_requires`)
 
 ## Local Development
 
@@ -174,17 +161,14 @@ To run PEP8 (flake8) checks and unit tests including coverage report:
 make test
 ```
 
-
 ## License
 
 The code in this project is licensed under the [Apache License, version 2.0](./LICENSE)
-
 
 ## Contributing
 
 Easiest way to contribute is to provide feedback! We would love to hear what you like and what you think is missing.
 Create an issue and we will take a look. PRs are welcome.
-
 
 ## Code of Conduct
 

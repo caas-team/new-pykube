@@ -1,6 +1,4 @@
-"""
-pykube.http unittests
-"""
+# pykube.http unittests
 import os
 from pathlib import Path
 from unittest import mock
@@ -38,7 +36,9 @@ def test_http(monkeypatch):
         mock_send.call_args[0][0].headers["Authorization"]
         == "Basic YWRtOnNvbWVwYXNzd29yZA=="
     )
-    assert mock_send.call_args[0][0].headers["User-Agent"] == f"new-pykube/{__version__}"
+    assert (
+        mock_send.call_args[0][0].headers["User-Agent"] == f"new-pykube/{__version__}"
+    )
     # check that the default HTTP timeout was set
     assert mock_send.call_args[1]["timeout"] == DEFAULT_HTTP_TIMEOUT
 

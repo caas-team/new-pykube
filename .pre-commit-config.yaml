@@ -1,5 +1,5 @@
 ---
-fail_fast: false
+fail_fast: true
 default_stages: [pre-commit, pre-push]
 repos:
   # meta
@@ -12,17 +12,21 @@ repos:
   # formatters
 
   - repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.9.0
+    rev: v3.14.0
     hooks:
       - id: reorder-python-imports
 
-  - repo: https://github.com/ambv/black
-    rev: 23.3.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.2
     hooks:
-      - id: black
+      # Run the linter.
+      - id: ruff
+        args: [--fix]
+      # Run the formatter.
+      - id: ruff-format
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.6.0
+    rev: v3.19.0
     hooks:
       - id: pyupgrade
         stages: [pre-push]
@@ -30,20 +34,32 @@ repos:
   # linters
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.8.0
     hooks:
       - id: bandit
         args: ["-x", "tests"]
         stages: [pre-push]
 
-        #- repo: https://github.com/PyCQA/pydocstyle
-        #rev: 5.0.2
-        #hooks:
-        #- id: pydocstyle
-        #args: ["--ignore=D10,D21,D202"]
-
   - repo: local
     hooks:
+      - id: prevent-todo-comments
+        name: prevent todo comments
+        entry: '# *(TODO|FIXME)\b' # matches a python comment beginning with "TODO" or "FIXME"
+        language: pygrep
+        files: \.py$
+
+      - id: prevent-too-small-headings
+        name: prevent too small headings
+        entry: "^#{5,} " # matches a h5 or smaller markdown heading
+        language: pygrep
+        files: \.md$
+
+      - id: prevent-invalid-alert-types
+        name: prevent invalid alert types
+        entry: '(?i)^> \[!(?!\b(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\b).+\]' # matches a github markdown callout/alert that doesn't use one of the supported keywords
+        language: pygrep
+        files: \.md$
+
       - id: safety
         name: safety
         entry: safety
@@ -62,24 +78,19 @@ repos:
         stages: [pre-push]
 
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.32.0
+    rev: v1.35.1
     hooks:
       - id: yamllint
         args: ["--strict", "-d", "{rules: {line-length: {max: 180}}}"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.3.0
+    rev: v1.13.0
     hooks:
       - id: mypy
         additional_dependencies: [types-PyYAML, types-requests]
 
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-docstring-first
@@ -96,15 +107,17 @@ repos:
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
-      #      - id: rst-backticks
       - id: python-use-type-annotations
       - id: python-no-log-warn
       - id: python-no-eval
       - id: python-check-mock-methods
       - id: python-check-blanket-noqa
 
-  # commit-msg
-  # http://jorisroovers.com/gitlint/#using-gitlint-through-pre-commit
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.4.2
+    hooks:
+      - id: prettier
+        files: \.md$
 
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
