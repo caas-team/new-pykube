@@ -1,6 +1,4 @@
-"""
-HTTP request related code.
-"""
+# HTTP request related code.
 import base64
 import datetime
 import json

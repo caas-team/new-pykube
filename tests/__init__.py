@@ -1,6 +1,4 @@
-"""
-Unittests
-"""
+# Unittests
 import unittest
 
 

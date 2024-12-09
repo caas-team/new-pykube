@@ -1,6 +1,4 @@
-"""
-Configuration code.
-"""
+# Configuration code.
 import base64
 import copy
 import hashlib

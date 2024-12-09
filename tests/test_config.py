@@ -1,6 +1,4 @@
-"""
-pykube.config unittests
-"""
+# pykube.config unittests
 import os
 from pathlib import Path
 from unittest.mock import MagicMock

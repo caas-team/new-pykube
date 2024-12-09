@@ -1,6 +1,4 @@
-"""
-pykube.http unittests
-"""
+# pykube.http unittests
 import copy
 import logging
 
@@ -89,6 +87,3 @@ class TestHTTPClient(TestCase):
 
         client = pykube.HTTPClient(pykube.KubeConfig(doc=self.config))
         _log.debug("Checking headers %s", client.session.headers)
-        # TODO: session.headers is no long filled due to KubernetesHTTPAdapter!
-        # self.assertIn('Authorization', client.session.headers)
-        # self.assertEqual(client.session.headers['Authorization'], 'Bearer test')
