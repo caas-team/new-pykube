@@ -223,11 +223,8 @@ class TestConfig(TestCase):
         self.assertEqual("foospace", self.cfg.namespace)
 
     def __validate_user_certs(self, d: dict):
-        key = d.get("client-key", None)
-        data = d.get("client-certificate", None)
-
-        self.assertIsNotNone("data", data)
-        self.assertIsNotNone("data", key)
+        key = d["client-key"]
+        data = d["client-certificate"]
 
         self.assertIsInstance(data, BytesOrFile)
         self.assertIsInstance(key, BytesOrFile)
