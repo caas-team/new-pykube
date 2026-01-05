@@ -1,7 +1,7 @@
 [tool]
 [tool.poetry]
 name = "new-pykube"
-version = "25.11.0"
+version = "26.1.0"
 description = "Python client library for Kubernetes"
 license = "Apache"
 classifiers = [
@@ -11,11 +11,11 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3 :: Only",
 ]
 authors = ["Jonathan Mayer <jonathan.mayer@telekom.de>", "Jan Taeuber <jan.taeuber@telekom.de>", "Johannes Thiem <johannesthiem6@gmail.com>"]
@@ -24,7 +24,7 @@ homepage = "https://github.com/caas-team/new-pykube"
 packages = [{ include = "pykube" }]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4"
+python = ">=3.10,<4"
 google-auth = {optional = true, version = "*"}
 jsonpath-ng = {optional = true, version = "*"}
 pyyaml = "*"
