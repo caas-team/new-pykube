@@ -17,7 +17,7 @@ repos:
       - id: reorder-python-imports
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.14.11
     hooks:
       # Run the linter.
       - id: ruff
@@ -78,7 +78,7 @@ repos:
         stages: [pre-push]
 
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.37.1
+    rev: v1.38.0
     hooks:
       - id: yamllint
         args: ["--strict", "-d", "{rules: {line-length: {max: 180}}}"]
